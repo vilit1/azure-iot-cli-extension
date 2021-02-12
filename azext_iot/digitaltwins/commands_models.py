@@ -42,3 +42,8 @@ def update_model(cmd, name_or_hostname, model_id, decommission=None, resource_gr
 def delete_model(cmd, name_or_hostname, model_id, resource_group_name=None):
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.delete(id=model_id)
+
+
+def import_solution(cmd, name_or_hostname, solution_name, resource_group_name=None, source="DMR"):
+    model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
+    return model_provider.import_solution(solution_name=solution_name)

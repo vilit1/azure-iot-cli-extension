@@ -17,7 +17,9 @@ logger = get_logger(__name__)
 class ModelProvider(DigitalTwinsProvider):
     def __init__(self, cmd, name, rg=None):
         super(ModelProvider, self).__init__(
-            cmd=cmd, name=name, rg=rg,
+            cmd=cmd,
+            name=name,
+            rg=rg,
         )
         self.model_sdk = self.get_sdk().digital_twin_models
 
@@ -84,7 +86,9 @@ class ModelProvider(DigitalTwinsProvider):
     def list(
         self, get_definition=False, dependencies_for=None, top=None
     ):  # top is guarded for int() in arg def
-        from azext_iot.sdk.digitaltwins.dataplane.models import DigitalTwinModelsListOptions
+        from azext_iot.sdk.digitaltwins.dataplane.models import (
+            DigitalTwinModelsListOptions,
+        )
 
         list_options = DigitalTwinModelsListOptions(max_item_count=top)
 
@@ -108,3 +112,49 @@ class ModelProvider(DigitalTwinsProvider):
             return self.model_sdk.delete(id=id)
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
+
+    def import_solution(self, solution_name):
+        # Very hacky
+        import requests
+        from .resolver import resolve
+        from .twin import TwinProvider
+        from tqdm import tqdm
+
+        print(f"Attempting to fetch solution '{solution_name}'...")
+        base_endpoint = "https://raw.githubusercontent.com/digimaun/iot-plugandplay-models/adt_import_test"
+        sol_endpoint = f"{base_endpoint}/solutions/{solution_name}" + ".json"
+        response = requests.get(sol_endpoint)
+        solution_payload = json.loads(response.text)
+        model_dtmis = solution_payload["dtmis"]
+        model_dict = {}
+        for dtmi in tqdm(model_dtmis, "Fetching models"):
+            model_dict.update(resolve(dtmi, base_endpoint, resolve_dependencies=True))
+        # Very hacky
+        models = list(model_dict.values())
+        models_json = json.dumps(models)
+        for _ in tqdm(range(1), "Uploading models to instance"):
+            self.add(models_json)
+        twins = solution_payload["twins"]
+        twin_provider = TwinProvider(self.cmd, self.name, self.rg)
+        # Very hacky
+        for twin in tqdm(twins, "Configuring instance with twins"):
+            twin_provider.create(
+                twin["id"],
+                twin["dtmi"],
+                False,
+                json.dumps(twin["properties"]) if twin.get("properties") else None,
+            )
+
+        # Very hacky
+        for twin in tqdm(twins, "Configuring twin relationships"):
+            relationships = twin.get("relationships")
+            if relationships:
+                for relationship in relationships:
+                    twin_provider.add_relationship(
+                        twin["id"],
+                        relationship["targetTwinId"],
+                        relationship["id"],
+                        relationship["type"],
+                        False,
+                        json.dumps(relationship["properties"]) if relationship.get("properties") else None,
+                    )

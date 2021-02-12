@@ -36,6 +36,11 @@ def load_digitaltwins_arguments(self, _):
     """
     with self.argument_context("dt") as context:
         context.argument(
+            "solution_name",
+            options_list=["--solution-name", "--sn"],
+            help="The solution name to fetch and process.",
+        )
+        context.argument(
             "resource_group_name",
             arg_type=resource_group_name_type,
             help="Digital Twins instance resource group. "

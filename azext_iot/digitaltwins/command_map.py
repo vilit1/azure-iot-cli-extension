@@ -165,3 +165,8 @@ def load_digitaltwins_commands(self, _):
         cmd_group.show_command("show", "show_private_endpoint_conn")
         cmd_group.command("list", "list_private_endpoint_conns")
         cmd_group.command("delete", "delete_private_endpoint_conn", confirmation=True, supports_no_wait=True)
+
+    with self.command_group(
+        "dt solution", command_type=digitaltwins_model_ops
+    ) as cmd_group:
+        cmd_group.command("import", "import_solution")
