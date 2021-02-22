@@ -745,3 +745,13 @@ def load_digitaltwins_help():
           text: >
             az dt model delete -n {instance_or_hostname} --dtmi "dtmi:com:example:Floor;1"
     """
+
+    helps["dt solution"] = """
+        type: group
+        short-summary: Quickstart your Digital Twins journey with ready to go solutions.
+    """
+
+    helps["dt solution import"] = """
+        type: command
+        short-summary: Import an existing solution to your Digital Twins instance.
+    """

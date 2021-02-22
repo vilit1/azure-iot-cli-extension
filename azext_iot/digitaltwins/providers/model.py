@@ -120,6 +120,7 @@ class ModelProvider(DigitalTwinsProvider):
         from .twin import TwinProvider
         from tqdm import tqdm
 
+        twin_relationships = []
         print(f"Attempting to fetch solution '{solution_name}'...")
         base_endpoint = "https://raw.githubusercontent.com/digimaun/iot-plugandplay-models/adt_import_test"
         sol_endpoint = f"{base_endpoint}/solutions/{solution_name}" + ".json"
@@ -145,16 +146,15 @@ class ModelProvider(DigitalTwinsProvider):
                 json.dumps(twin["properties"]) if twin.get("properties") else None,
             )
 
-        # Very hacky
-        for twin in tqdm(twins, "Configuring twin relationships"):
-            relationships = twin.get("relationships")
-            if relationships:
-                for relationship in relationships:
-                    twin_provider.add_relationship(
-                        twin["id"],
-                        relationship["targetTwinId"],
-                        relationship["id"],
-                        relationship["type"],
-                        False,
-                        json.dumps(relationship["properties"]) if relationship.get("properties") else None,
-                    )
+        for twin in twins:
+            twin_relationships = twin.get("relationships", [])
+            for relationship in tqdm(twin_relationships, "Configuring relationships for twin: {}".format(twin["id"])):
+                #import pdb; pdb.set_trace()
+                twin_provider.add_relationship(
+                    twin["id"],
+                    relationship["targetTwinId"],
+                    relationship["id"],
+                    relationship["type"],
+                    False,
+                    json.dumps(relationship["properties"]) if relationship.get("properties") else None,
+                )
