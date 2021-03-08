@@ -170,3 +170,4 @@ def load_digitaltwins_commands(self, _):
         "dt solution", command_type=digitaltwins_model_ops
     ) as cmd_group:
         cmd_group.command("import", "import_solution")
+        cmd_group.command("export", "export_solution")

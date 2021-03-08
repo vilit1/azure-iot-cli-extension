@@ -47,3 +47,8 @@ def delete_model(cmd, name_or_hostname, model_id, resource_group_name=None):
 def import_solution(cmd, name_or_hostname, solution_name, resource_group_name=None, source="DMR"):
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.import_solution(solution_name=solution_name)
+
+
+def export_solution(cmd, name_or_hostname, resource_group_name=None, source="DMR"):
+    model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
+    return model_provider.export_solution()

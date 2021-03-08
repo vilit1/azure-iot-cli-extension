@@ -5,11 +5,15 @@
 # --------------------------------------------------------------------------------------------
 
 import json
+import requests
 from azext_iot.common.utility import process_json_arg, scantree, unpack_msrest_error
 from azext_iot.digitaltwins.providers.base import DigitalTwinsProvider
 from azext_iot.digitaltwins.providers import ErrorResponseException
 from knack.log import get_logger
 from knack.util import CLIError
+from .resolver import resolve
+from .twin import TwinProvider
+from tqdm import tqdm
 
 logger = get_logger(__name__)
 
@@ -158,3 +162,64 @@ class ModelProvider(DigitalTwinsProvider):
                     False,
                     json.dumps(relationship["properties"]) if relationship.get("properties") else None,
                 )
+
+    def export_solution(self, industries=None, description=None, tags=None):
+        # Very hacky based on above
+
+        #should give the short name or host name
+        #similiar to az dt show
+        #want to query twins, models, get definitions + get all info
+
+        solution = {
+            "industries" : industries if industries else [],
+            "description" : description if description else "",
+            "tags" : tags if tags else [],  # might want to aggregate tags
+            "dtmis" : []
+        }
+        print("getting name") # get name based on if it is a hostname, assuming that hostnme has 3 . => need rindex
+        solution["name"] = self.name if self.name.count(".") < 2 else self.name[:self.name.find(".")]
+
+
+        print("Getting twins")
+        twin_provider = TwinProvider(self.cmd, self.name, self.rg)
+        twin_query = twin_provider.invoke_query(query="select * from digitaltwins", show_cost=False)
+        twins = []
+        print("Getting models")
+        for twin in twin_query["result"]:
+            parsed_twin = {
+                "id": twin["$dtId"],
+                "dtmi": twin["$metadata"]["$model"]
+            }
+
+            #they are not under properties - get keys + iterate?
+            properties = []
+            for key in twin.keys():
+                if key[0] != "$":
+                    properties.append(twin[key])
+            if len(properties) > 0:
+                parsed_twin["properties"] = properties
+            # add to dtmi
+            if parsed_twin["dtmi"] not in solution["dtmis"]:
+                solution["dtmis"].append(parsed_twin["dtmi"])
+
+            # get relationships
+            relationships = twin_provider.list_relationships(twin["$dtId"])
+            parsed_relationships = []
+            for relationship in relationships:
+                parsed_relationship = {
+                    "id": relationship["$relationshipId"]
+                    "type": relationship["$relationshipName"]
+                }
+
+            # add parsed twin
+            twins.append(parsed_twin)
+        solution["twins"] = twins
+
+        print("Resulting solution: " + str(solution))
+        solution_name = solution["name"]
+        print(f"Attempting to export solution '{solution_name}'...")
+        base_endpoint = "https://raw.githubusercontent.com/digimaun/iot-plugandplay-models/adt_import_test"
+        sol_endpoint = f"{base_endpoint}/solutions/{solution_name}" + ".json"
+        response = requests.get(sol_endpoint)
+        solution_payload = json.loads(response.text)
+        print(solution_payload)
