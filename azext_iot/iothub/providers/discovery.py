@@ -6,7 +6,7 @@
 
 from knack.util import CLIError
 from knack.log import get_logger
-from azext_iot.common.utility import trim_from_start
+from azext_iot.common.utility import trim_from_start, ensure_min_version
 from azext_iot.iothub.models.iothub_target import IotHubTarget
 from azext_iot._factory import iot_hub_service_factory
 from typing import Dict, List
@@ -32,7 +32,7 @@ class IotHubDiscovery(object):
                 self.client = iot_hub_service_factory(self.cmd.cli_ctx)
             else:
                 self.client = self.cmd
-            self.sub_id = self.client.config.subscription_id
+            self.sub_id = self.client._config.subscription_id
 
     def get_iothubs(self, rg: str = None) -> List:
         self._initialize_client()
@@ -44,11 +44,15 @@ class IotHubDiscovery(object):
         else:
             hubs_pager = self.client.list_by_resource_group(resource_group_name=rg)
 
-        try:
-            while True:
-                hubs_list.extend(hubs_pager.advance_page())
-        except StopIteration:
-            pass
+        if ensure_min_version('1.0.0'):
+            for hubs in hubs_pager.by_page():
+                hubs_list.extend(hubs)
+        else:
+            try:
+                while True:
+                    hubs_list.extend(hubs_pager.advance_page())
+            except StopIteration:
+                pass
 
         return hubs_list
 
@@ -60,23 +64,27 @@ class IotHubDiscovery(object):
         )
         policy_list = []
 
-        try:
-            while True:
-                policy_list.extend(policy_pager.advance_page())
-        except StopIteration:
-            pass
+        if ensure_min_version('1.0.0'):
+            for policy in policy_pager.by_page():
+                policy_list.extend(policy)
+        else:
+            try:
+                while True:
+                    policy_list.extend(policy_pager.advance_page())
+            except StopIteration:
+                pass
 
         return policy_list
 
     def find_iothub(self, hub_name: str, rg: str = None):
         self._initialize_client()
 
-        from azure.mgmt.iothub.models import ErrorDetailsException
+        from azure.core.exceptions import HttpResponseError
 
         if rg:
             try:
                 return self.client.get(resource_group_name=rg, resource_name=hub_name)
-            except ErrorDetailsException:
+            except HttpResponseError:
                 raise CLIError(
                     "Unable to find IoT Hub: {} in resource group: {}".format(
                         hub_name, rg
@@ -186,7 +194,7 @@ class IotHubDiscovery(object):
         target["subscription"] = self.sub_id
         target["resourcegroup"] = iothub.additional_properties.get("resourcegroup")
         target["location"] = iothub.location
-        target["sku_tier"] = iothub.sku.tier.value
+        target["sku_tier"] = iothub.sku.tier
 
         if include_events:
             events = {}

@@ -451,10 +451,11 @@ class ISO8601Validator:
             return False
 
 
-def ensure_min_version(cur_ver, min_ver):
+def ensure_min_version(min_ver):
     from pkg_resources._vendor.packaging import version
+    from azure.mgmt.iothub import __version__ as iot_sdk_version
 
-    return version.parse(cur_ver) >= version.parse(min_ver)
+    return version.parse(iot_sdk_version) >= version.parse(min_ver)
 
 
 def scantree(path):
