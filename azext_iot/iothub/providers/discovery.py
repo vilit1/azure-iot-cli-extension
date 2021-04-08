@@ -32,7 +32,10 @@ class IotHubDiscovery(object):
                 self.client = iot_hub_service_factory(self.cmd.cli_ctx)
             else:
                 self.client = self.cmd
-            self.sub_id = self.client._config.subscription_id
+            try:
+                self.sub_id = self.client.config.subscription_id
+            except:
+                self.sub_id = self.client._config.subscription_id
 
     def get_iothubs(self, rg: str = None) -> List:
         self._initialize_client()
