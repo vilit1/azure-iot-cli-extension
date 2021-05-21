@@ -3,6 +3,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
+from azext_iot.sdk.digitaltwins.controlplane.models.digital_twins_description_paged import DigitalTwinsDescriptionPaged
 from azext_iot.digitaltwins.common import (
     ADTEndpointAuthType,
     ADTPublicNetworkAccessType,
@@ -31,14 +32,14 @@ class ResourceProvider(DigitalTwinsResourceManager):
 
     def create(
         self,
-        name,
-        resource_group_name,
-        location=None,
+        name : str,
+        resource_group_name : str,
+        location : str = None,
         tags=None,
-        timeout=60,
-        assign_identity=None,
+        timeout : int = 60,
+        assign_identity : str = None,
         scopes=None,
-        role_type="Contributor",
+        role_type : str = "Contributor",
         public_network_access=ADTPublicNetworkAccessType.enabled.value,
     ):
         if not location:
@@ -103,13 +104,13 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as err:
             raise CLIError(unpack_msrest_error(err))
 
-    def list(self):
+    def list(self) -> DigitalTwinsDescriptionPaged:
         try:
             return self.mgmt_sdk.digital_twins.list()
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def list_by_resouce_group(self, resource_group_name):
+    def list_by_resouce_group(self, resource_group_name) -> DigitalTwinsDescriptionPaged:
         try:
             return self.mgmt_sdk.digital_twins.list_by_resource_group(
                 resource_group_name=resource_group_name

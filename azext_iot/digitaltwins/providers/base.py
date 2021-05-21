@@ -10,12 +10,14 @@ from azext_iot.sdk.digitaltwins.dataplane.models import ErrorResponseException
 from azext_iot.constants import DIGITALTWINS_RESOURCE_ID, USER_AGENT
 from azext_iot.common.utility import valid_hostname
 from knack.cli import CLIError
+from typing import TypeVar
 
 __all__ = ["DigitalTwinsProvider", "ErrorResponseException"]
+AzCliCommand = TypeVar('AzCliCommand')
 
 
 class DigitalTwinsProvider(object):
-    def __init__(self, cmd, name, rg=None):
+    def __init__(self, cmd : AzCliCommand, name : str, rg : str = None):
         assert cmd
         assert name
 
@@ -25,7 +27,7 @@ class DigitalTwinsProvider(object):
         self.resource_id = DIGITALTWINS_RESOURCE_ID
         self.rp = ResourceProvider(self.cmd)
 
-    def _get_endpoint(self):
+    def _get_endpoint(self) -> str:
         host_name = None
         https_prefix = "https://"
         http_prefix = "http://"

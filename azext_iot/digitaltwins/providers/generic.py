@@ -4,15 +4,16 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from typing import Tuple, List
 
 # Experimental - depends on consistency of APIs
 def accumulate_result(
     method,
-    token_name="continuationToken",
-    token_arg_name="continuation_token",
-    values_name="items",
+    token_name : str = "continuationToken",
+    token_arg_name : str = "continuation_token",
+    values_name : str = "items",
     **kwargs
-):
+) -> Tuple[List, float]:
     result_accumulator = []
 
     nextlink = None
@@ -43,7 +44,7 @@ def accumulate_result(
     return result_accumulator, query_cost_sum
 
 
-def remove_prefix(text, prefix):
+def remove_prefix(text : str, prefix : str) -> str:
     if text.startswith(prefix):
         return text[len(prefix) :]
     return text

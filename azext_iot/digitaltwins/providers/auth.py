@@ -47,7 +47,7 @@ class DigitalTwinAuthentication(Authentication):
         session.headers["Authorization"] = self.generate_token()
         return session
 
-    def generate_token(self):
+    def generate_token(self) -> str:
         from azure.cli.core._profile import Profile
 
         profile = Profile(cli_ctx=self.cmd.cli_ctx)

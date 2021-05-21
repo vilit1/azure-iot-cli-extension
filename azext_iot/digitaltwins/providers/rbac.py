@@ -12,7 +12,7 @@ class RbacProvider(object):
     def __init__(self):
         self.cli = EmbeddedCLI()
 
-    def list_assignments(self, dt_scope, include_inherited=False, role_type=None):
+    def list_assignments(self, dt_scope : str, include_inherited : bool = False, role_type : str = None) -> dict:
         include_inherited_flag = ""
         filter_role_type = ""
 
@@ -33,7 +33,7 @@ class RbacProvider(object):
 
         return list_op.as_json()
 
-    def assign_role(self, dt_scope, assignee, role_type):
+    def assign_role(self, dt_scope : str, assignee : str, role_type : str) -> dict:
         assign_op = self.cli.invoke(
             "role assignment create --scope '{}' --role '{}' --assignee '{}'".format(
                 dt_scope, role_type, assignee
@@ -44,7 +44,7 @@ class RbacProvider(object):
 
         return assign_op.as_json()
 
-    def remove_role(self, dt_scope, assignee, role_type=None):
+    def remove_role(self, dt_scope : str, assignee : str, role_type : str = None) -> None:
         filter_role_type = ""
         if role_type:
             filter_role_type = "--role '{}'".format(role_type)
@@ -56,9 +56,14 @@ class RbacProvider(object):
         )
         if not delete_op.success():
             raise CLIError("Unable to remove role assignment.")
-        return
 
-    def assign_role_flex(self, principal_id, scope, principal_type="ServicePrincipal", role_type="Contributor"):
+    def assign_role_flex(
+        self,
+        principal_id : str,
+        scope : str,
+        principal_type : str = "ServicePrincipal",
+        role_type : str = "Contributor"
+    ) -> dict:
         assign_op = self.cli.invoke(
             "role assignment create --scope '{}' --role '{}' --assignee-object-id '{}' --assignee-principal-type '{}' ".format(
                 scope, role_type, principal_id, principal_type

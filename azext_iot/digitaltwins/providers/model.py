@@ -10,11 +10,13 @@ from azext_iot.digitaltwins.providers.base import DigitalTwinsProvider
 from azext_iot.sdk.digitaltwins.dataplane.models import ErrorResponseException
 from knack.log import get_logger
 from knack.util import CLIError
+from typing import List, TypeVar
 
 logger = get_logger(__name__)
+DigitalTwinsModelDataPaged = TypeVar('DigitalTwinsModelDataPaged')
 
 
-def get_model_dependencies(model):
+def get_model_dependencies(model : dict) -> List[str]:
     """Return a list of dependency DTMIs for a given model"""
     dependencies = []
 
@@ -51,13 +53,13 @@ def get_model_dependencies(model):
 
 
 class ModelProvider(DigitalTwinsProvider):
-    def __init__(self, cmd, name, rg=None):
+    def __init__(self, cmd, name : str, rg : str = None):
         super(ModelProvider, self).__init__(
             cmd=cmd, name=name, rg=rg,
         )
         self.model_sdk = self.get_sdk().digital_twin_models
 
-    def add(self, models=None, from_directory=None):
+    def add(self, models : str = None, from_directory : str = None) -> dict:
         if not any([models, from_directory]):
             raise CLIError("Provide either --models or --from-directory.")
 
@@ -95,7 +97,7 @@ class ModelProvider(DigitalTwinsProvider):
 
         return response.json()
 
-    def _process_directory(self, from_directory):
+    def _process_directory(self, from_directory : str) -> List[dict]:
         logger.debug(
             "Documents contained in directory: {}, processing...".format(from_directory)
         )
@@ -115,7 +117,7 @@ class ModelProvider(DigitalTwinsProvider):
 
         return payload
 
-    def get(self, id, get_definition=False):
+    def get(self, id : str, get_definition : bool = False) -> dict:
         try:
             return self.model_sdk.get_by_id(
                 id=id, include_model_definition=get_definition, raw=True
@@ -124,8 +126,8 @@ class ModelProvider(DigitalTwinsProvider):
             raise CLIError(unpack_msrest_error(e))
 
     def list(
-        self, get_definition=False, dependencies_for=None, top=None
-    ):  # top is guarded for int() in arg def
+        self, get_definition : bool = False, dependencies_for : List[str] = None, top : int = None
+    ) -> DigitalTwinsModelDataPaged:  # top is guarded for int() in arg def
         from azext_iot.sdk.digitaltwins.dataplane.models import DigitalTwinModelsListOptions
 
         list_options = DigitalTwinModelsListOptions(max_item_count=top)
@@ -136,12 +138,12 @@ class ModelProvider(DigitalTwinsProvider):
             digital_twin_models_list_options=list_options,
         )
 
-    def update(self, id, decommission: bool):
+    def update(self, id : str, decommission: bool) -> None:
         patched_model = [
             {"op": "replace", "path": "/decommissioned", "value": decommission}
         ]
 
-        # Does not return model object upon updating
+        # Does not return model object upon updating unless raw
         try:
             self.model_sdk.update(id=id, update_model=patched_model)
         except ErrorResponseException as e:
@@ -149,13 +151,13 @@ class ModelProvider(DigitalTwinsProvider):
 
         return self.get(id=id)
 
-    def delete(self, id: str):
+    def delete(self, id: str) -> None:
         try:
             self.model_sdk.delete(id=id)
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         # Get all models
         incoming_pager = self.list(get_definition=True)
         incoming_result = []
@@ -175,7 +177,7 @@ class ModelProvider(DigitalTwinsProvider):
             for d_id in dependencies:
                 parsed_models[d_id].add(model.id)
 
-        def delete_parents(model_id, model_dict):
+        def delete_parents(model_id : str, model_dict : dict) -> None:
             # Check if current model has been deleted already
             if model_id not in model_dict:
                 return

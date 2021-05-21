@@ -6,11 +6,19 @@
 
 from azext_iot.digitaltwins.providers.resource import ResourceProvider
 from knack.log import get_logger
+from typing import TypeVar
 
 logger = get_logger(__name__)
+AzCliCommand = TypeVar('AzCliCommand')
 
 
-def assign_role(cmd, name, role_type, assignee, resource_group_name=None):
+def assign_role(
+    cmd : AzCliCommand,
+    name : str,
+    role_type : str,
+    assignee : str,
+    resource_group_name : str = None
+):
     rp = ResourceProvider(cmd)
     return rp.assign_role(
         name=name,
@@ -20,7 +28,13 @@ def assign_role(cmd, name, role_type, assignee, resource_group_name=None):
     )
 
 
-def remove_role(cmd, name, assignee=None, role_type=None, resource_group_name=None):
+def remove_role(
+    cmd : AzCliCommand,
+    name : str,
+    assignee : str = None,
+    role_type : str = None,
+    resource_group_name : str = None
+) -> None:
     rp = ResourceProvider(cmd)
     return rp.remove_role(
         name=name,
@@ -31,7 +45,11 @@ def remove_role(cmd, name, assignee=None, role_type=None, resource_group_name=No
 
 
 def list_assignments(
-    cmd, name, include_inherited=False, role_type=None, resource_group_name=None
+    cmd : AzCliCommand,
+    name : str,
+    include_inherited : bool = False,
+    role_type : str = None,
+    resource_group_name : str = None
 ):
     rp = ResourceProvider(cmd)
     return rp.get_role_assignments(
