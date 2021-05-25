@@ -10,6 +10,18 @@ shared: Define shared data types(enums); hub and dps connection string functions
 """
 
 from enum import Enum
+from typing import TypeVar
+
+AzCliCommand = TypeVar('AzCliCommand')
+Session = TypeVar('Session')
+DigitalTwinsModelDataPaged = TypeVar('DigitalTwinsModelDataPaged')
+DigitalTwinsDescription = TypeVar('DigitalTwinsDescription')
+DigitalTwinsDescriptionPaged = TypeVar('DigitalTwinsDescriptionPaged')
+DigitalTwinsEndpointResource = TypeVar('DigitalTwinsEndpointResource')
+DigitalTwinsEndpointResourcePaged = TypeVar('DigitalTwinsEndpointResourcePaged')
+AzureOperationPoller = TypeVar('AzureOperationPoller')
+EventRoutePaged = TypeVar('EventRoutePaged')
+EventRoute = TypeVar('EventRoute')
 
 
 class SdkType(Enum):
