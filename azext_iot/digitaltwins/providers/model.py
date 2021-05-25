@@ -10,10 +10,10 @@ from azext_iot.digitaltwins.providers.base import DigitalTwinsProvider
 from azext_iot.sdk.digitaltwins.dataplane.models import ErrorResponseException
 from knack.log import get_logger
 from knack.util import CLIError
-from typing import List, TypeVar
+from typing import List
+from azext_iot.common.shared import DigitalTwinsModelDataPaged
 
 logger = get_logger(__name__)
-DigitalTwinsModelDataPaged = TypeVar('DigitalTwinsModelDataPaged')
 
 
 def get_model_dependencies(model : dict) -> List[str]:

@@ -4,6 +4,15 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from typing import List
+from azext_iot.common.shared import (
+    AzCliCommand,
+    AzureOperationPoller,
+    DigitalTwinsDescription,
+    DigitalTwinsDescriptionPaged,
+    DigitalTwinsEndpointResource,
+    DigitalTwinsEndpointResourcePaged
+)
 from azext_iot.digitaltwins.providers.resource import ResourceProvider
 from azext_iot.digitaltwins.common import (
     ADTEndpointType,
@@ -16,16 +25,16 @@ logger = get_logger(__name__)
 
 
 def create_instance(
-    cmd,
-    name,
-    resource_group_name,
-    location=None,
-    tags=None,
-    assign_identity=None,
-    scopes=None,
-    role_type="Contributor",
-    public_network_access=ADTPublicNetworkAccessType.enabled.value,
-):
+    cmd : AzCliCommand,
+    name : str,
+    resource_group_name : str,
+    location : str = None,
+    tags : List[str] = None,
+    assign_identity : str = None,
+    scopes : List[str] = None,
+    role_type : str = "Contributor",
+    public_network_access : str = ADTPublicNetworkAccessType.enabled.value,
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.create(
         name=name,
@@ -39,7 +48,7 @@ def create_instance(
     )
 
 
-def list_instances(cmd, resource_group_name=None):
+def list_instances(cmd : AzCliCommand, resource_group_name : str = None) -> DigitalTwinsDescriptionPaged:
     rp = ResourceProvider(cmd)
 
     if not resource_group_name:
@@ -47,29 +56,35 @@ def list_instances(cmd, resource_group_name=None):
     return rp.list_by_resouce_group(resource_group_name)
 
 
-def show_instance(cmd, name, resource_group_name=None):
+def show_instance(cmd : AzCliCommand, name : str, resource_group_name : str = None) -> DigitalTwinsDescription:
     rp = ResourceProvider(cmd)
     return rp.find_instance(name=name, resource_group_name=resource_group_name)
 
 
-def delete_instance(cmd, name, resource_group_name=None):
+def delete_instance(cmd : AzCliCommand, name : str, resource_group_name : str = None) -> None:
     rp = ResourceProvider(cmd)
     return rp.delete(name=name, resource_group_name=resource_group_name)
 
 
-def list_endpoints(cmd, name, resource_group_name=None):
+def list_endpoints(
+    cmd : AzCliCommand, name : str, resource_group_name : str = None
+) -> DigitalTwinsEndpointResourcePaged:
     rp = ResourceProvider(cmd)
     return rp.list_endpoints(name=name, resource_group_name=resource_group_name)
 
 
-def show_endpoint(cmd, name, endpoint_name, resource_group_name=None):
+def show_endpoint(
+    cmd : AzCliCommand, name : str, endpoint_name : str, resource_group_name : str = None
+) -> DigitalTwinsEndpointResource:
     rp = ResourceProvider(cmd)
     return rp.get_endpoint(
         name=name, endpoint_name=endpoint_name, resource_group_name=resource_group_name
     )
 
 
-def delete_endpoint(cmd, name, endpoint_name, resource_group_name=None):
+def delete_endpoint(
+    cmd, name : str, endpoint_name : str, resource_group_name : str = None
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.delete_endpoint(
         name=name, endpoint_name=endpoint_name, resource_group_name=resource_group_name
@@ -77,17 +92,17 @@ def delete_endpoint(cmd, name, endpoint_name, resource_group_name=None):
 
 
 def add_endpoint_eventgrid(
-    cmd,
-    name,
-    endpoint_name,
-    eventgrid_topic_name,
-    eventgrid_resource_group,
-    resource_group_name=None,
-    endpoint_subscription=None,
-    dead_letter_uri=None,
-    dead_letter_secret=None,
-    auth_type=ADTEndpointAuthType.keybased.value,
-):
+    cmd : AzCliCommand,
+    name : str,
+    endpoint_name : str,
+    eventgrid_topic_name : str,
+    eventgrid_resource_group : str,
+    resource_group_name : str = None,
+    endpoint_subscription : str = None,
+    dead_letter_uri : str = None,
+    dead_letter_secret : str = None,
+    auth_type : str = ADTEndpointAuthType.keybased.value,
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.add_endpoint(
         name=name,
@@ -104,19 +119,19 @@ def add_endpoint_eventgrid(
 
 
 def add_endpoint_servicebus(
-    cmd,
-    name,
-    endpoint_name,
-    servicebus_topic_name,
-    servicebus_resource_group,
-    servicebus_namespace,
-    servicebus_policy=None,
-    resource_group_name=None,
-    endpoint_subscription=None,
-    dead_letter_uri=None,
-    dead_letter_secret=None,
-    auth_type=ADTEndpointAuthType.keybased.value,
-):
+    cmd : AzCliCommand,
+    name : str,
+    endpoint_name : str,
+    servicebus_topic_name : str,
+    servicebus_resource_group : str,
+    servicebus_namespace : str,
+    servicebus_policy : str = None,
+    resource_group_name : str = None,
+    endpoint_subscription : str = None,
+    dead_letter_uri : str = None,
+    dead_letter_secret : str = None,
+    auth_type : str = ADTEndpointAuthType.keybased.value,
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.add_endpoint(
         name=name,
@@ -135,19 +150,19 @@ def add_endpoint_servicebus(
 
 
 def add_endpoint_eventhub(
-    cmd,
-    name,
-    endpoint_name,
-    eventhub_name,
-    eventhub_resource_group,
-    eventhub_namespace,
-    eventhub_policy=None,
-    resource_group_name=None,
-    endpoint_subscription=None,
-    dead_letter_uri=None,
-    dead_letter_secret=None,
-    auth_type=ADTEndpointAuthType.keybased.value,
-):
+    cmd : AzCliCommand,
+    name : str,
+    endpoint_name : str,
+    eventhub_name : str,
+    eventhub_resource_group : str,
+    eventhub_namespace : str,
+    eventhub_policy : str = None,
+    resource_group_name : str = None,
+    endpoint_subscription : str = None,
+    dead_letter_uri : str = None,
+    dead_letter_secret : str = None,
+    auth_type : str = ADTEndpointAuthType.keybased.value,
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.add_endpoint(
         name=name,
@@ -165,28 +180,32 @@ def add_endpoint_eventhub(
     )
 
 
-def show_private_link(cmd, name, link_name, resource_group_name=None):
+def show_private_link(
+    cmd : AzCliCommand, name : str, link_name : str, resource_group_name : str = None
+) -> dict:
     rp = ResourceProvider(cmd)
     return rp.get_private_link(
         name=name, resource_group_name=resource_group_name, link_name=link_name
     )
 
 
-def list_private_links(cmd, name, resource_group_name=None):
+def list_private_links(
+    cmd : AzCliCommand, name, resource_group_name : str = None
+) -> List[dict]:
     rp = ResourceProvider(cmd)
     return rp.list_private_links(name=name, resource_group_name=resource_group_name)
 
 
 def set_private_endpoint_conn(
-    cmd,
-    name,
-    conn_name,
-    status,
-    description=None,
-    group_ids=None,
-    actions_required=None,
-    resource_group_name=None,
-):
+    cmd : AzCliCommand,
+    name : str,
+    conn_name : str,
+    status : str,
+    description : str = None,
+    group_ids : str = None,
+    actions_required : str = None,
+    resource_group_name : str = None,
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.set_private_endpoint_conn(
         name=name,
@@ -199,21 +218,27 @@ def set_private_endpoint_conn(
     )
 
 
-def show_private_endpoint_conn(cmd, name, conn_name, resource_group_name=None):
+def show_private_endpoint_conn(
+    cmd : AzCliCommand, name : str, conn_name : str, resource_group_name : str = None
+) -> DigitalTwinsEndpointResource:
     rp = ResourceProvider(cmd)
     return rp.get_private_endpoint_conn(
         name=name, resource_group_name=resource_group_name, conn_name=conn_name
     )
 
 
-def list_private_endpoint_conns(cmd, name, resource_group_name=None):
+def list_private_endpoint_conns(
+    cmd : AzCliCommand, name : str, resource_group_name : str = None
+) -> List[dict]:
     rp = ResourceProvider(cmd)
     return rp.list_private_endpoint_conns(
         name=name, resource_group_name=resource_group_name
     )
 
 
-def delete_private_endpoint_conn(cmd, name, conn_name, resource_group_name=None):
+def delete_private_endpoint_conn(
+    cmd : AzCliCommand, name : str, conn_name : str, resource_group_name : str = None
+) -> AzureOperationPoller:
     rp = ResourceProvider(cmd)
     return rp.delete_private_endpoint_conn(
         name=name, resource_group_name=resource_group_name, conn_name=conn_name

@@ -3,6 +3,13 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
+from typing import List
+from azext_iot.common.shared import (
+    AzCliCommand,
+    AzureOperationPoller,
+    DigitalTwinsEndpointResource,
+    DigitalTwinsEndpointResourcePaged
+)
 from azext_iot.sdk.digitaltwins.controlplane.models.digital_twins_description_paged import DigitalTwinsDescriptionPaged
 from azext_iot.digitaltwins.common import (
     ADTEndpointAuthType,
@@ -25,7 +32,7 @@ logger = get_logger(__name__)
 
 
 class ResourceProvider(DigitalTwinsResourceManager):
-    def __init__(self, cmd):
+    def __init__(self, cmd : AzCliCommand):
         super(ResourceProvider, self).__init__(cmd=cmd)
         self.mgmt_sdk = self.get_mgmt_sdk()
         self.rbac = RbacProvider()
@@ -35,13 +42,13 @@ class ResourceProvider(DigitalTwinsResourceManager):
         name : str,
         resource_group_name : str,
         location : str = None,
-        tags=None,
+        tags : List[str] = None,
         timeout : int = 60,
         assign_identity : str = None,
-        scopes=None,
+        scopes : List[str] = None,
         role_type : str = "Contributor",
-        public_network_access=ADTPublicNetworkAccessType.enabled.value,
-    ):
+        public_network_access : str = ADTPublicNetworkAccessType.enabled.value,
+    ) -> AzureOperationPoller:
         if not location:
             from azext_iot.common.embedded_cli import EmbeddedCLI
 
@@ -118,7 +125,7 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def get(self, name, resource_group_name):
+    def get(self, name : str, resource_group_name : str) -> DigitalTwinsDescription:
         try:
             return self.mgmt_sdk.digital_twins.get(
                 resource_name=name, resource_group_name=resource_group_name
@@ -126,7 +133,7 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def find_instance(self, name, resource_group_name=None):
+    def find_instance(self, name : str, resource_group_name : str = None) -> DigitalTwinsDescription:
         if resource_group_name:
             try:
                 return self.get(name=name, resource_group_name=resource_group_name)
@@ -160,13 +167,13 @@ class ResourceProvider(DigitalTwinsResourceManager):
             "Provide resource group via -g for direct lookup.".format(name)
         )
 
-    def get_rg(self, dt_instance):
+    def get_rg(self, dt_instance : DigitalTwinsDescription) -> str:
         dt_scope = dt_instance.id
         split_decomp = dt_scope.split("/")
         res_g = split_decomp[4]
         return res_g
 
-    def delete(self, name, resource_group_name=None):
+    def delete(self, name : str, resource_group_name : str = None) -> AzureOperationPoller:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -184,8 +191,12 @@ class ResourceProvider(DigitalTwinsResourceManager):
     # RBAC
 
     def get_role_assignments(
-        self, name, include_inherited=False, role_type=None, resource_group_name=None
-    ):
+        self,
+        name : str,
+        include_inherited: bool = False,
+        role_type : str = None,
+        resource_group_name : str = None
+    ) -> dict:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -198,7 +209,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
             role_type=role_type,
         )
 
-    def assign_role(self, name, role_type, assignee, resource_group_name=None):
+    def assign_role(
+        self, name : str, role_type : str, assignee : str, resource_group_name : str = None
+    ) -> dict:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -209,7 +222,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
             dt_scope=target_instance.id, assignee=assignee, role_type=role_type
         )
 
-    def remove_role(self, name, assignee, role_type=None, resource_group_name=None):
+    def remove_role(
+        self, name : str, assignee : str, role_type : str = None, resource_group_name : str = None
+    ) -> None:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -222,7 +237,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
 
     # Endpoints
 
-    def get_endpoint(self, name, endpoint_name, resource_group_name=None):
+    def get_endpoint(
+        self, name : str, endpoint_name : str, resource_group_name : str = None
+    ) -> DigitalTwinsEndpointResource:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -238,7 +255,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def list_endpoints(self, name, resource_group_name=None):
+    def list_endpoints(
+        self, name : str, resource_group_name : str = None
+    ) -> DigitalTwinsEndpointResourcePaged:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -254,7 +273,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
             raise CLIError(unpack_msrest_error(e))
 
     # TODO: Polling issue related to mismatched status codes.
-    def delete_endpoint(self, name, endpoint_name, resource_group_name=None):
+    def delete_endpoint(
+        self, name : str, endpoint_name : str, resource_group_name : str = None
+    ) -> AzureOperationPoller:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -272,20 +293,20 @@ class ResourceProvider(DigitalTwinsResourceManager):
 
     def add_endpoint(
         self,
-        name,
-        endpoint_name,
-        endpoint_resource_type,
-        endpoint_resource_name,
-        endpoint_resource_group,
-        endpoint_resource_policy=None,
-        endpoint_resource_namespace=None,
-        endpoint_subscription=None,
-        dead_letter_uri=None,
-        dead_letter_secret=None,
-        resource_group_name=None,
-        timeout=20,
-        auth_type=None,
-    ):
+        name : str,
+        endpoint_name : str,
+        endpoint_resource_type : str,
+        endpoint_resource_name : str,
+        endpoint_resource_group : str,
+        endpoint_resource_policy : str = None,
+        endpoint_resource_namespace : str = None,
+        endpoint_subscription : str = None,
+        dead_letter_uri : str = None,
+        dead_letter_secret : str = None,
+        resource_group_name : str = None,
+        timeout : int = 20,
+        auth_type : str = None,
+    ) -> AzureOperationPoller:
         from azext_iot.digitaltwins.common import ADTEndpointType
 
         requires_namespace = [
@@ -351,7 +372,7 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def get_private_link(self, name, link_name, resource_group_name=None):
+    def get_private_link(self, name : str, link_name : str, resource_group_name : str = None) -> dict:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -368,7 +389,7 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def list_private_links(self, name, resource_group_name=None):
+    def list_private_links(self, name : str, resource_group_name : str = None) -> List[dict]:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -386,14 +407,14 @@ class ResourceProvider(DigitalTwinsResourceManager):
 
     def set_private_endpoint_conn(
         self,
-        name,
-        conn_name,
-        status,
-        description,
-        actions_required=None,
-        group_ids=None,
-        resource_group_name=None,
-    ):
+        name : str,
+        conn_name : str,
+        status : str,
+        description : str,
+        actions_required : str = None,
+        group_ids : List[str] = None,
+        resource_group_name : str = None,
+    ) -> AzureOperationPoller:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -418,7 +439,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def get_private_endpoint_conn(self, name, conn_name, resource_group_name=None):
+    def get_private_endpoint_conn(
+        self, name : str, conn_name : str, resource_group_name : str = None
+    ) -> DigitalTwinsEndpointResource:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -435,7 +458,7 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def list_private_endpoint_conns(self, name, resource_group_name=None):
+    def list_private_endpoint_conns(self, name : str, resource_group_name : str = None) -> List[dict]:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )
@@ -451,7 +474,9 @@ class ResourceProvider(DigitalTwinsResourceManager):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete_private_endpoint_conn(self, name, conn_name, resource_group_name=None):
+    def delete_private_endpoint_conn(
+        self, name : str, conn_name : str, resource_group_name : str = None
+    ) -> AzureOperationPoller:
         target_instance = self.find_instance(
             name=name, resource_group_name=resource_group_name
         )

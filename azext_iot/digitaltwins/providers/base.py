@@ -4,16 +4,15 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand
 from azext_iot.digitaltwins.providers.resource import ResourceProvider
 from azext_iot.sdk.digitaltwins.dataplane import AzureDigitalTwinsAPI
 from azext_iot.sdk.digitaltwins.dataplane.models import ErrorResponseException
 from azext_iot.constants import DIGITALTWINS_RESOURCE_ID, USER_AGENT
 from azext_iot.common.utility import valid_hostname
 from knack.cli import CLIError
-from typing import TypeVar
 
 __all__ = ["DigitalTwinsProvider", "ErrorResponseException"]
-AzCliCommand = TypeVar('AzCliCommand')
 
 
 class DigitalTwinsProvider(object):
@@ -49,7 +48,7 @@ class DigitalTwinsProvider(object):
 
         return "https://{}".format(host_name)
 
-    def get_sdk(self):
+    def get_sdk(self) -> AzureDigitalTwinsAPI:
         from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
         client = get_mgmt_service_client(

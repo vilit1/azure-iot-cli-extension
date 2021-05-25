@@ -4,6 +4,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand
 import json
 from azext_iot.digitaltwins.providers.base import (
     DigitalTwinsProvider,
@@ -26,7 +27,7 @@ class TwinOptions():
 
 
 class TwinProvider(DigitalTwinsProvider):
-    def __init__(self, cmd, name, rg=None):
+    def __init__(self, cmd : AzCliCommand, name : str, rg : str = None):
         super(TwinProvider, self).__init__(
             cmd=cmd,
             name=name,
@@ -36,7 +37,7 @@ class TwinProvider(DigitalTwinsProvider):
         self.query_sdk = self.get_sdk().query
         self.twins_sdk = self.get_sdk().digital_twins
 
-    def invoke_query(self, query, show_cost):
+    def invoke_query(self, query : str, show_cost : bool) -> dict:
         from azext_iot.digitaltwins.providers.generic import accumulate_result
 
         try:
@@ -57,7 +58,9 @@ class TwinProvider(DigitalTwinsProvider):
 
         return query_result
 
-    def create(self, twin_id, model_id, if_none_match=False, properties=None):
+    def create(
+        self, twin_id : str, model_id : str, if_none_match : bool = False, properties : str = None
+    ) -> dict:
         twin_request = {
             "$dtId": twin_id,
             "$metadata": {"$model": model_id},
@@ -77,13 +80,13 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def get(self, twin_id):
+    def get(self, twin_id : str) -> dict:
         try:
             return self.twins_sdk.get_by_id(id=twin_id, raw=True).response.json()
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def update(self, twin_id, json_patch, etag=None):
+    def update(self, twin_id : str, json_patch : str, etag : str = None) -> dict:
         json_patch = process_json_arg(content=json_patch, argument_name="json-patch")
 
         json_patch_collection = []
@@ -105,14 +108,14 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete(self, twin_id, etag=None):
+    def delete(self, twin_id : str, etag : str = None) -> None:
         try:
             options = TwinOptions(if_match=(etag if etag else "*"))
             self.twins_sdk.delete(id=twin_id, digital_twins_delete_options=options, raw=True)
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete_all(self, only_relationships=False):
+    def delete_all(self, only_relationships : bool = False) -> None:
         # need to get all twins
         query = "select * from digitaltwins"
         twins = self.invoke_query(query=query, show_cost=False)["result"]
@@ -131,13 +134,13 @@ class TwinProvider(DigitalTwinsProvider):
 
     def add_relationship(
         self,
-        twin_id,
-        target_twin_id,
-        relationship_id,
-        relationship,
-        if_none_match=False,
-        properties=None,
-    ):
+        twin_id : str,
+        target_twin_id : str,
+        relationship_id : str,
+        relationship : str,
+        if_none_match : bool = False,
+        properties : str = None,
+    ) -> dict:
         relationship_request = {
             "$targetId": target_twin_id,
             "$relationshipName": relationship,
@@ -162,7 +165,7 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def get_relationship(self, twin_id, relationship_id):
+    def get_relationship(self, twin_id : str, relationship_id : str) -> dict:
         try:
             return self.twins_sdk.get_relationship_by_id(
                 id=twin_id, relationship_id=relationship_id, raw=True
@@ -171,7 +174,7 @@ class TwinProvider(DigitalTwinsProvider):
             raise CLIError(unpack_msrest_error(e))
 
     def list_relationships(
-        self, twin_id, incoming_relationships=False, relationship=None
+        self, twin_id : str, incoming_relationships : bool = False, relationship : str = None
     ):
         if not incoming_relationships:
             return self.twins_sdk.list_relationships(
@@ -198,7 +201,9 @@ class TwinProvider(DigitalTwinsProvider):
 
         return incoming_result
 
-    def update_relationship(self, twin_id, relationship_id, json_patch, etag=None):
+    def update_relationship(
+        self, twin_id : str, relationship_id : str, json_patch : str, etag : str = None
+    ) -> dict:
         json_patch = process_json_arg(content=json_patch, argument_name="json-patch")
 
         json_patch_collection = []
@@ -225,7 +230,7 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete_relationship(self, twin_id, relationship_id, etag=None):
+    def delete_relationship(self, twin_id : str, relationship_id : str, etag : str = None) -> None:
         try:
             options = TwinOptions(if_match=(etag if etag else "*"))
             self.twins_sdk.delete_relationship(
@@ -234,7 +239,7 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def delete_all_relationship(self, twin_id):
+    def delete_all_relationship(self, twin_id : str) -> None:
         relationships = self.list_relationships(twin_id, incoming_relationships=True)
         incoming_pager = self.list_relationships(twin_id)
 
@@ -262,7 +267,7 @@ class TwinProvider(DigitalTwinsProvider):
             except CLIError as e:
                 logger.warn(f"Could not delete relationship {relationship}. The error is {e}.")
 
-    def get_component(self, twin_id, component_path):
+    def get_component(self, twin_id : str, component_path : str) -> dict:
         try:
             return self.twins_sdk.get_component(
                 id=twin_id, component_path=component_path, raw=True
@@ -270,7 +275,7 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def update_component(self, twin_id, component_path, json_patch, etag=None):
+    def update_component(self, twin_id : str, component_path : str, json_patch : str, etag : str = None) -> dict:
         json_patch = process_json_arg(content=json_patch, argument_name="json-patch")
 
         json_patch_collection = []
@@ -295,7 +300,7 @@ class TwinProvider(DigitalTwinsProvider):
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def send_telemetry(self, twin_id, telemetry=None, dt_id=None, component_path=None):
+    def send_telemetry(self, twin_id : str, telemetry : str = None, dt_id : str = None, component_path : str = None) -> None:
         from uuid import uuid4
         from datetime import datetime, timezone
 

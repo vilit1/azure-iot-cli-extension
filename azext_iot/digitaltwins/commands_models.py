@@ -4,12 +4,11 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand, DigitalTwinsModelDataPaged
 from azext_iot.digitaltwins.providers.model import ModelProvider
 from knack.log import get_logger
-from typing import TypeVar
 
 logger = get_logger(__name__)
-AzCliCommand = TypeVar('AzCliCommand')
 
 
 def add_models(
@@ -18,7 +17,7 @@ def add_models(
     models : str = None,
     from_directory : str = None,
     resource_group_name : str = None
-):
+) -> dict:
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     logger.debug("Received models input: %s", models)
     return model_provider.add(models=models, from_directory=from_directory)
@@ -30,7 +29,7 @@ def show_model(
     model_id : str,
     definition : bool = False,
     resource_group_name : str = None
-):
+) -> dict:
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.get(id=model_id, get_definition=definition)
 
@@ -41,7 +40,7 @@ def list_models(
     definition : str = False,
     dependencies_for : str = None,
     resource_group_name : str = None
-):
+) -> DigitalTwinsModelDataPaged:
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.list(
         get_definition=definition, dependencies_for=dependencies_for
@@ -54,7 +53,7 @@ def update_model(
     model_id : str,
     decommission : str = None,
     resource_group_name : str = None
-):
+) -> None:
     if decommission is None:
         logger.info("No update arguments provided. Nothing to update.")
         return
@@ -68,7 +67,7 @@ def delete_model(
     name_or_hostname : str,
     model_id : str,
     resource_group_name : str = None
-):
+) -> None:
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.delete(id=model_id)
 
@@ -77,6 +76,6 @@ def delete_all_models(
     cmd : AzCliCommand,
     name_or_hostname : str,
     resource_group_name : str = None
-):
+) -> None:
     model_provider = ModelProvider(cmd=cmd, name=name_or_hostname, rg=resource_group_name)
     return model_provider.delete_all()

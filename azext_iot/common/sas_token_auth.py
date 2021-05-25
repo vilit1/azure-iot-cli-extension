@@ -13,6 +13,8 @@ from base64 import b64encode, b64decode
 from hashlib import sha256
 from hmac import HMAC
 from time import time
+
+from requests.sessions import Session
 try:
     from urllib import (urlencode, quote_plus)
 except ImportError:
@@ -30,13 +32,13 @@ class SasTokenAuthentication(Authentication):
         shared_access_key (str): Shared access key.
         expiry (int): Future expiry (in seconds) of the token to be generated.
     """
-    def __init__(self, uri, shared_access_policy_name, shared_access_key, expiry=3600):
+    def __init__(self, uri : str, shared_access_policy_name : str, shared_access_key : str, expiry : int = 3600):
         self.uri = uri
         self.policy = shared_access_policy_name
         self.key = shared_access_key
         self.expiry = int(expiry)
 
-    def signed_session(self, session=None):
+    def signed_session(self, session : Session = None) -> Session:
         """
         Create requests session with SAS auth headers.
 
@@ -49,7 +51,7 @@ class SasTokenAuthentication(Authentication):
 
         return self.refresh_session(session)
 
-    def refresh_session(self, session=None):
+    def refresh_session(self, session : Session = None) -> Session:
         """
         Refresh requests session with SAS auth headers.
 
@@ -64,7 +66,7 @@ class SasTokenAuthentication(Authentication):
         session.headers['Authorization'] = self.generate_sas_token()
         return session
 
-    def generate_sas_token(self, absolute=False):
+    def generate_sas_token(self, absolute : bool = False) -> str:
         """
         Create a shared access signature token as a string literal.
 
@@ -99,10 +101,10 @@ class BasicSasTokenAuthentication(Authentication):
     Args:
         sas_token (str): sas token to use in authentication.
     """
-    def __init__(self, sas_token):
+    def __init__(self, sas_token : str):
         self.sas_token = sas_token
 
-    def signed_session(self):
+    def signed_session(self) -> Session:
         """
         Create requests session with SAS auth headers.
 

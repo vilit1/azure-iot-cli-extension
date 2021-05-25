@@ -6,6 +6,7 @@
 
 from typing import Tuple, List
 
+
 # Experimental - depends on consistency of APIs
 def accumulate_result(
     method,

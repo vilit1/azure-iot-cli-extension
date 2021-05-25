@@ -4,12 +4,11 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand
 from azext_iot.digitaltwins.providers.resource import ResourceProvider
 from knack.log import get_logger
-from typing import TypeVar
 
 logger = get_logger(__name__)
-AzCliCommand = TypeVar('AzCliCommand')
 
 
 def assign_role(

@@ -4,6 +4,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand, Session
 from msrest.authentication import Authentication
 
 
@@ -13,11 +14,11 @@ class DigitalTwinAuthentication(Authentication):
 
     """
 
-    def __init__(self, cmd, resource_id):
+    def __init__(self, cmd : AzCliCommand, resource_id : str):
         self.resource_id = resource_id
         self.cmd = cmd
 
-    def signed_session(self, session=None):
+    def signed_session(self, session : Session = None) -> Session:
         """
         Create requests session with SAS auth headers.
 
@@ -31,8 +32,8 @@ class DigitalTwinAuthentication(Authentication):
         return self.refresh_session(session)
 
     def refresh_session(
-        self, session=None,
-    ):
+        self, session : Session = None,
+    ) -> Session:
         """
         Refresh requests session with SAS auth headers.
 

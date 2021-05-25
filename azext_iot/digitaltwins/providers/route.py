@@ -4,6 +4,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand, EventRoute, EventRoutePaged
 from azext_iot.common.utility import unpack_msrest_error
 from azext_iot.digitaltwins.providers.base import DigitalTwinsProvider
 from azext_iot.digitaltwins.providers import ErrorResponseException
@@ -14,27 +15,31 @@ logger = get_logger(__name__)
 
 
 class RouteProvider(DigitalTwinsProvider):
-    def __init__(self, cmd, name, rg=None):
+    def __init__(self, cmd : AzCliCommand, name : str, rg : str = None):
         super(RouteProvider, self).__init__(cmd=cmd, name=name, rg=rg)
         self.sdk = self.get_sdk().event_routes
 
-    def get(self, route_name):
+    def get(self, route_name : str) -> EventRoute:
         try:
-            return self.sdk.get_by_id(route_name)
+            result = self.sdk.get_by_id(route_name)
+            print(type(result))
+            return result
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def list(self, top=None):  # top is guarded for int() in arg def
+    def list(self, top : int = None) -> EventRoutePaged:  # top is guarded for int() in arg def
         from azext_iot.sdk.digitaltwins.dataplane.models import EventRoutesListOptions
 
         list_options = EventRoutesListOptions(max_item_count=top)
 
         try:
-            return self.sdk.list(event_routes_list_options=list_options,)
+            result = self.sdk.list(event_routes_list_options=list_options,)
+            print(type(result))
+            return result
         except ErrorResponseException as e:
             raise CLIError(unpack_msrest_error(e))
 
-    def create(self, route_name, endpoint_name, filter=None):
+    def create(self, route_name : str, endpoint_name : str, filter : str = None) -> None:
         if not filter:
             filter = "true"
 
@@ -46,7 +51,7 @@ class RouteProvider(DigitalTwinsProvider):
 
         return self.get(route_name=route_name)
 
-    def delete(self, route_name):
+    def delete(self, route_name : str) -> None:
         try:
             return self.sdk.delete(id=route_name)
         except ErrorResponseException as e:
