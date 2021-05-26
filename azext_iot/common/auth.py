@@ -4,10 +4,11 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azext_iot.common.shared import AzCliCommand
 from azure.cli.core._profile import Profile
 
 
-def get_aad_token(cmd, resource=None):
+def get_aad_token(cmd : AzCliCommand, resource=None) -> dict:
     """
     get AAD token to access to a specified resource
     :param resource: Azure resource endpoints. Default to Azure Resource Manager

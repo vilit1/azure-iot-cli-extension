@@ -13,7 +13,9 @@ import base64
 from OpenSSL import crypto
 
 
-def create_self_signed_certificate(subject, valid_days, cert_output_dir, cert_only=False):
+def create_self_signed_certificate(
+    subject : str, valid_days : int, cert_output_dir : str, cert_only : bool = False
+) -> dict:
     """
     Function used to create a self-signed certificate
 
@@ -62,7 +64,7 @@ def create_self_signed_certificate(subject, valid_days, cert_output_dir, cert_on
     return result
 
 
-def open_certificate(certificate_path):
+def open_certificate(certificate_path : str) -> str:
     """
     Opens certificate file (as read binary) from the file system and
     retruns the value read.

@@ -115,5 +115,5 @@ class BasicSasTokenAuthentication(Authentication):
         session.headers['Authorization'] = self.sas_token
         return session
 
-    def set_sas_token(self, new_token):
+    def set_sas_token(self, new_token : str):
         self.sas_token = new_token

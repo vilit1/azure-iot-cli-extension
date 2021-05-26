@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------------------------
 # Dev note - think of this as a controller
 
+from azext_iot.common.shared import AzCliCommand
 from knack.util import CLIError
 
 from azext_iot.constants import CENTRAL_ENDPOINT
@@ -15,12 +16,12 @@ from azext_iot.central.models.enum import ApiVersion
 
 
 def get_device_template(
-    cmd,
+    cmd: AzCliCommand,
     app_id: str,
     device_template_id: str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
+    central_dns_suffix: str = CENTRAL_ENDPOINT,
+    api_version: str = ApiVersion.v1.value,
 ):
     if api_version == ApiVersion.preview.value:
         provider = CentralDeviceTemplateProviderPreview(
@@ -36,12 +37,12 @@ def get_device_template(
 
 
 def list_device_templates(
-    cmd,
+    cmd: AzCliCommand,
     app_id: str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
-):
+    central_dns_suffix: str = CENTRAL_ENDPOINT,
+    api_version: str = ApiVersion.v1.value,
+) -> dict:
     if api_version == ApiVersion.preview.value:
         provider = CentralDeviceTemplateProviderPreview(
             cmd=cmd, app_id=app_id, token=token
@@ -54,12 +55,12 @@ def list_device_templates(
 
 
 def map_device_templates(
-    cmd,
+    cmd: AzCliCommand,
     app_id: str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
-):
+    central_dns_suffix: str = CENTRAL_ENDPOINT,
+    api_version: str = ApiVersion.v1.value,
+) -> dict:
     if api_version == ApiVersion.preview.value:
         provider = CentralDeviceTemplateProviderPreview(
             cmd=cmd, app_id=app_id, token=token
@@ -71,14 +72,14 @@ def map_device_templates(
 
 
 def create_device_template(
-    cmd,
+    cmd: AzCliCommand,
     app_id: str,
     device_template_id: str,
     content: str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
-):
+    central_dns_suffix: str = CENTRAL_ENDPOINT,
+    api_version: str = ApiVersion.v1.value,
+) -> dict:
     if not isinstance(content, str):
         raise CLIError("content must be a string: {}".format(content))
 
@@ -100,13 +101,13 @@ def create_device_template(
 
 
 def delete_device_template(
-    cmd,
+    cmd: AzCliCommand,
     app_id: str,
     device_template_id: str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
-):
+    central_dns_suffix: str = CENTRAL_ENDPOINT,
+    api_version: str = ApiVersion.v1.value,
+) -> dict:
     if api_version == ApiVersion.preview.value:
         provider = CentralDeviceTemplateProviderPreview(
             cmd=cmd, app_id=app_id, token=token

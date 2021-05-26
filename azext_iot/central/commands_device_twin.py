@@ -5,12 +5,17 @@
 # --------------------------------------------------------------------------------------------
 
 
+from azext_iot.common.shared import AzCliCommand
 from azext_iot.constants import CENTRAL_ENDPOINT
 from azext_iot.central.providers.devicetwin_provider import CentralDeviceTwinProvider
 
 
 def device_twin_show(
-    cmd, device_id, app_id, token=None, central_dns_suffix=CENTRAL_ENDPOINT
+    cmd: AzCliCommand,
+    device_id: str,
+    app_id: str,
+    token=None,
+    central_dns_suffix: str = CENTRAL_ENDPOINT
 ):
     device_twin_provider = CentralDeviceTwinProvider(
         cmd=cmd, app_id=app_id, token=token, device_id=device_id

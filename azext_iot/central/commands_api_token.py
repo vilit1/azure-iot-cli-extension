@@ -6,6 +6,7 @@
 # Dev note - think of this as a controller
 
 
+from azext_iot.common.shared import AzCliCommand
 from azext_iot.constants import CENTRAL_ENDPOINT
 from azext_iot.central.providers.preview import CentralApiTokenProviderPreview
 from azext_iot.central.providers.v1 import CentralApiTokenProviderV1
@@ -13,13 +14,13 @@ from azext_iot.central.models.enum import Role, ApiVersion
 
 
 def add_api_token(
-    cmd,
-    app_id: str,
-    token_id: str,
-    role: str,
+    cmd : AzCliCommand,
+    app_id : str,
+    token_id : str,
+    role : str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
+    central_dns_suffix : str = CENTRAL_ENDPOINT,
+    api_version : str = ApiVersion.v1.value,
 ):
     if api_version == ApiVersion.preview.value:
         provider = CentralApiTokenProviderPreview(cmd=cmd, app_id=app_id, token=token)
@@ -32,11 +33,11 @@ def add_api_token(
 
 
 def list_api_tokens(
-    cmd,
-    app_id: str,
+    cmd : AzCliCommand,
+    app_id : str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
+    central_dns_suffix : str = CENTRAL_ENDPOINT,
+    api_version : str = ApiVersion.v1.value,
 ):
 
     if api_version == ApiVersion.preview.value:
@@ -48,12 +49,12 @@ def list_api_tokens(
 
 
 def get_api_token(
-    cmd,
-    app_id: str,
-    token_id: str,
+    cmd : AzCliCommand,
+    app_id : str,
+    token_id : str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
+    central_dns_suffix : str = CENTRAL_ENDPOINT,
+    api_version : str = ApiVersion.v1.value,
 ):
 
     if api_version == ApiVersion.preview.value:
@@ -67,12 +68,12 @@ def get_api_token(
 
 
 def delete_api_token(
-    cmd,
-    app_id: str,
-    token_id: str,
+    cmd : AzCliCommand,
+    app_id : str,
+    token_id : str,
     token=None,
-    central_dns_suffix=CENTRAL_ENDPOINT,
-    api_version=ApiVersion.v1.value,
+    central_dns_suffix : str = CENTRAL_ENDPOINT,
+    api_version : str = ApiVersion.v1.value,
 ):
     if api_version == ApiVersion.preview.value:
         provider = CentralApiTokenProviderPreview(cmd=cmd, app_id=app_id, token=token)

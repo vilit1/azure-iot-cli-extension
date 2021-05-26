@@ -25,7 +25,9 @@ class TemplateV1:
         except:
             raise CLIError("Could not parse iot central device template.")
 
-    def get_schema(self, name, is_component=False, identifier="") -> dict:
+    def get_schema(
+        self, name : str, is_component : bool = False, identifier : str = ""
+    ) -> dict:
         entities = self.components if is_component else self.interfaces
         if identifier:
             # identifier specified, do a pointed lookup
@@ -106,7 +108,7 @@ class TemplateV1:
             for entity_name, entity_schemas in entity.items()
         }
 
-    def _get_interface_list_property(self, property_name) -> list:
+    def _get_interface_list_property(self, property_name : str) -> list:
         # returns the list of interfaces where property with property_name is defined
         return [
             interface

@@ -25,7 +25,7 @@ class DeviceTwin:
 
 class Property:
     def __init__(
-        self, name: str, props: dict, device_id,
+        self, name: str, props: dict, device_id : str,
     ):
         self.name = name
         self.props = props

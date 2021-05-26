@@ -16,7 +16,7 @@ from azext_iot.common.pip import install
 from azext_iot.common._homebrew_patch import HomebrewPipPatch
 
 
-def ensure_uamqp(config, yes=False, repair=False):
+def ensure_uamqp(config, yes : bool = False, repair : bool = False) -> None:
     if get_uamqp_ext_version(config) != EVENT_LIB[1] or repair or not test_import(EVENT_LIB[0]):
         if not yes:
             input_txt = ('Dependency update ({} {}) required for IoT extension version: {}. {}'

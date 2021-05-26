@@ -27,7 +27,7 @@ from knack.util import CLIError
 logger = get_logger(__name__)
 
 
-def parse_entity(entity, filter_none=False):
+def parse_entity(entity, filter_none : bool = False) -> dict:
     """
     Function creates a dict of object attributes.
 
@@ -71,7 +71,7 @@ def evaluate_literal(literal, expected):
         return None
 
 
-def verify_transform(subject, mapping):
+def verify_transform(subject, mapping : dict) -> None:
     """
     Determines if a key from mapping exists in subject and if so
     verifies that subject[k] is of type mapping[k]
@@ -98,7 +98,7 @@ def verify_transform(subject, mapping):
             )
 
 
-def validate_key_value_pairs(string):
+def validate_key_value_pairs(string : str):
     """
     Funtion to validate key-value pairs in the format: a=b;c=d
 
@@ -165,7 +165,7 @@ def shell_safe_json_parse(json_or_dict_string, preserve_order=False):
             )  # raise json_ex error which is more readable and likely.
 
 
-def read_file_content(file_path, allow_binary=False):
+def read_file_content(file_path : str, allow_binary : bool = False):
     from codecs import open as codecs_open
 
     # Note, always put 'utf-8-sig' first, so that BOM in WinOS won't cause trouble.
@@ -187,7 +187,7 @@ def read_file_content(file_path, allow_binary=False):
     raise CLIError("Failed to decode file {} - unknown decoding".format(file_path))
 
 
-def trim_from_start(s, substring):
+def trim_from_start(s : str, substring : str) -> str:
     """ Trims a substring from the target string (if it exists) returning the trimmed string.
     Otherwise returns original target string. """
     if s.startswith(substring):
@@ -218,7 +218,7 @@ def validate_min_python_version(major, minor, error_msg=None, exit_on_fail=True)
     return result
 
 
-def unicode_binary_map(target):
+def unicode_binary_map(target : dict) -> dict:
     """ Decode binary keys and values of map to unicode."""
     # Assumes no iteritems()
     result = {}
@@ -236,7 +236,7 @@ def unicode_binary_map(target):
     return result
 
 
-def execute_onthread(**kwargs):
+def execute_onthread(**kwargs) -> Event:
     """
     Experimental generic helper for executing methods without return values on a background thread
 
@@ -286,7 +286,7 @@ def execute_onthread(**kwargs):
     return cancellation_token
 
 
-def url_encode_dict(d):
+def url_encode_dict(d : dict) -> str:
     try:
         from urllib import urlencode
     except ImportError:
@@ -295,7 +295,7 @@ def url_encode_dict(d):
     return urlencode(d)
 
 
-def url_encode_str(s, plus=False):
+def url_encode_str(s : str, plus : bool = False) -> str:
     try:
         if plus:
             from urllib import quote_plus
@@ -310,7 +310,7 @@ def url_encode_str(s, plus=False):
     return quote_plus(s) if plus else quote(s)
 
 
-def test_import(package):
+def test_import(package : str) -> bool:
     """ Used to determine if a dependency is loading correctly """
     import importlib
 
@@ -331,7 +331,7 @@ def unpack_pnp_http_error(e):
     return error
 
 
-def unpack_msrest_error(e):
+def unpack_msrest_error(e) -> str:
     """ Obtains full response text from an msrest error """
 
     op_err = None
@@ -344,12 +344,12 @@ def unpack_msrest_error(e):
     return op_err
 
 
-def dict_transform_lower_case_key(d):
+def dict_transform_lower_case_key(d : dict) -> dict:
     """ Converts a dictionary to an identical one with all lower case keys """
     return {k.lower(): v for k, v in d.items()}
 
 
-def calculate_millisec_since_unix_epoch_utc(offset_seconds: int = 0):
+def calculate_millisec_since_unix_epoch_utc(offset_seconds: int = 0) -> int:
     now = datetime.utcnow()
     epoch = datetime.utcfromtimestamp(0)
     return int(1000 * ((now - epoch).total_seconds() + offset_seconds))
@@ -380,14 +380,14 @@ def init_monitoring(cmd, timeout, properties, enqueued_time, repair, yes):
     return (enqueued_time, properties, timeout, output)
 
 
-def dict_clean(d):
+def dict_clean(d : dict) -> dict:
     """ Remove None from dictionary """
     if not isinstance(d, dict):
         return d
     return dict((k, dict_clean(v)) for k, v in d.items() if v is not None)
 
 
-def looks_like_file(element):
+def looks_like_file(element : str) -> bool:
     element = element.lower()
     return element.endswith(
         (
@@ -438,7 +438,7 @@ class ISO8601Validator:
             return False
 
 
-def ensure_iothub_sdk_min_version(min_ver):
+def ensure_iothub_sdk_min_version(min_ver : str) -> bool:
     from packaging import version
     try:
         from azure.mgmt.iothub import __version__ as iot_sdk_version
@@ -460,7 +460,7 @@ def find_between(s, start, end):
     return (s.split(start))[1].split(end)[0]
 
 
-def valid_hostname(host_name):
+def valid_hostname(host_name : str) -> bool:
     """
     Approximate validation
     Reference: https://en.wikipedia.org/wiki/Hostname
@@ -474,7 +474,7 @@ def valid_hostname(host_name):
     return all(valid_label.match(label) for label in label_parts)
 
 
-def compute_device_key(primary_key, registration_id):
+def compute_device_key(primary_key, registration_id) -> bytes:
     """
     Compute device SAS key
     Args:
@@ -492,7 +492,7 @@ def compute_device_key(primary_key, registration_id):
     return device_key
 
 
-def generate_key(byte_length=32):
+def generate_key(byte_length : int = 32) -> str:
     """
     Generate cryptographically secure device key.
     """
