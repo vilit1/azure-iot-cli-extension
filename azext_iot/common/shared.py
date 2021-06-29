@@ -267,3 +267,13 @@ class IoTHubStateType(Enum):
     KeyEncryptionKeyRevoking = "KeyEncryptionKeyRevoking"
     KeyEncryptionKeyRevoked = "KeyEncryptionKeyRevoked"
     ReActivating = "ReActivating"
+
+
+class TopicSpaceType(Enum):
+    """
+        Type of topic space.
+    """
+
+    LowFanout = "LowFanout"
+    HighFanout = "HighFanout"
+    PublishOnly = "PublishOnly"

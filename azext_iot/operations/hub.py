@@ -29,6 +29,7 @@ from azext_iot.common.shared import (
     RenewKeyType,
     IoTHubStateType,
     DeviceAuthApiType,
+    TopicSpaceType,
 )
 from azext_iot.iothub.providers.discovery import IotHubDiscovery
 from azext_iot.common.utility import (
@@ -3166,3 +3167,140 @@ def _customize_device_tracing_output(device_id, desired, reported):
         ):
             output["isSynced"] = True
     return output
+
+
+# Topic Space Preview
+
+def _validate_topic_template(topic_template):
+    if (
+        topic_template == "#" or
+        topic_template[0] == "$" or
+        "$IoTHub" in topic_template
+    ):
+        raise CLIError(f"Topic topic_template{topic_template} incorrect format")
+
+
+def iot_hub_topic_space_create_or_update(
+    cmd,
+    topic_name,
+    topic_template,
+    topic_type,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    topic_type = TopicSpaceType(topic_type)
+    if topic_type == TopicSpaceType.HighFanout:
+        raise CLIError("Only LowFanout and PublishOnly topic types are supported right now")
+
+    if isinstance(topic_template, str):
+        topic_template = list(topic_template.strip("[]").split(","))
+
+    for topic in topic_template:
+        _validate_topic_template(topic)
+
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        topicspace = service_sdk.topicspace.put_topicspace(
+            id=topic_name,
+            topicspace={
+                "name": topic_name,
+                "properties": {
+                    "topicspace_type": topic_type,
+                    "topic_templates": topic_template
+                }
+            }
+        )
+        return topicspace
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_show(
+    cmd,
+    topic_name,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        topicspace = service_sdk.topicspace.get_topicspace(
+            id=topic_name, raw=True
+        ).response.json()
+        return topicspace
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_list(
+    cmd,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        topicspaces = service_sdk.topicspace.list_topicspace(
+            raw=True
+        ).response.json()
+        return topicspaces
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_delete(
+    cmd,
+    topic_name,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        topicspace = service_sdk.topicspace.delete_topicspace(
+            id=topic_name, raw=True
+        ).response.json()
+        return topicspace
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))

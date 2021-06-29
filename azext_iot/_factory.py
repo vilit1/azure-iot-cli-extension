@@ -52,10 +52,8 @@ def iot_service_provisioning_factory(cli_ctx, *_):
         service_client (IotDpsClient): operational resource for
             working with IoT Hub Device Provisioning Service.
     """
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    from azure.mgmt.iothubprovisioningservices.iot_dps_client import IotDpsClient
-
-    return get_mgmt_service_client(cli_ctx, IotDpsClient)
+    from azure.cli.command_modules.iot._client_factory import iot_service_provisioning_factory
+    return iot_service_provisioning_factory(cli_ctx=cli_ctx)
 
 
 class SdkResolver(object):
@@ -73,8 +71,15 @@ class SdkResolver(object):
     def get_sdk(self, sdk_type):
         sdk_map = self._construct_sdk_map()
         sdk_client = sdk_map[sdk_type]()
-        sdk_client.config.enable_http_logger = True
-        sdk_client.config.add_user_agent(USER_AGENT)
+        try:
+            sdk_client.config.enable_http_logger = True
+            sdk_client.config.add_user_agent(USER_AGENT)
+        except AttributeError:
+            print(sdk_client._config.__dict__)
+            print()
+            print(sdk_client._config.user_agent_policy.__dict__)
+            sdk_client._config.enable_http_logger = True
+            # sdk_client._config.add_user_agent(USER_AGENT)
         return sdk_client
 
     def _construct_sdk_map(self):
@@ -85,7 +90,7 @@ class SdkResolver(object):
         }
 
     def _get_iothub_device_sdk(self):
-        from azext_iot.sdk.iothub.device import IotHubGatewayDeviceAPIs
+        from azext_iot.sdk.iothubpreview.device import IotHubGatewayDeviceAPIs
 
         credentials = SasTokenAuthentication(
             uri=self.sas_uri,
@@ -96,7 +101,7 @@ class SdkResolver(object):
         return IotHubGatewayDeviceAPIs(credentials=credentials, base_url=self.endpoint)
 
     def _get_iothub_service_sdk(self):
-        from azext_iot.sdk.iothub.service import IotHubGatewayServiceAPIs
+        from azext_iot.sdk.iothubpreview.service import IotHubGatewayServiceAPIs
 
         credentials = None
 
