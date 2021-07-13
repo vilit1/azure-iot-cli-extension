@@ -752,6 +752,46 @@ helps[
 """
 
 helps[
+    "iot hub topic-space"
+] = """
+    type: group
+    short-summary: Manage distributed settings per-device.
+"""
+
+helps[
+    "iot hub topic-space create"
+] = """
+    type: command
+    short-summary: Get the distributed tracing settings for a device.
+    examples:
+    - name: Get the distributed tracing settings for a device
+      text: >
+        az iot hub topic-space create -d {device_id} -n {iothub_name}
+"""
+
+helps[
+    "iot hub topic-space show"
+] = """
+    type: command
+    short-summary: Get the distributed tracing settings for a device.
+    examples:
+    - name: Get the distributed tracing settings for a device
+      text: >
+        az iot hub topic-space show -d {device_id} -n {iothub_name}
+"""
+
+helps[
+    "iot hub topic-space update"
+] = """
+    type: command
+    short-summary: Update the distributed tracing options for a device.
+    examples:
+    - name: Update the distributed tracing options for a device
+      text: >
+        az iot hub topic-space update -d {device_id} --sm on --sr 50 -n {iothub_name}
+"""
+
+helps[
     "iot device"
 ] = """
     type: group
