@@ -34,10 +34,8 @@ def iot_hub_service_factory(cli_ctx, *_):
         iot_hub_resource (IotHubClient.iot_hub_resource): operational resource for
             working with IoT Hub.
     """
-    from azure.cli.core.commands.client_factory import get_mgmt_service_client
-    from azure.cli.core.profiles import ResourceType
-
-    return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_IOTHUB).iot_hub_resource
+    from azure.cli.command_modules.iot._client_factory import iot_hub_service_factory
+    return iot_hub_service_factory(cli_ctx=cli_ctx)
 
 
 def iot_service_provisioning_factory(cli_ctx, *_):
@@ -75,9 +73,7 @@ class SdkResolver(object):
             sdk_client.config.enable_http_logger = True
             sdk_client.config.add_user_agent(USER_AGENT)
         except AttributeError:
-            print(sdk_client._config.__dict__)
-            print()
-            print(sdk_client._config.user_agent_policy.__dict__)
+            print(f"\n~~~~~~~~\nfactory.py\n{sdk_client._config.__dict__}\n{sdk_client._config.user_agent_policy.__dict__}\n^^^^^^^^\n")
             sdk_client._config.enable_http_logger = True
             # sdk_client._config.add_user_agent(USER_AGENT)
         return sdk_client

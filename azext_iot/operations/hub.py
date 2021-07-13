@@ -3207,11 +3207,12 @@ def iot_hub_topic_space_create_or_update(
         login=login,
         auth_type=auth_type_dataplane,
     )
+    print(f"\n~~~~~~\nhub.py\n{target}\n^^^^^^^^^^^\n")
     resolver = SdkResolver(target=target)
     service_sdk = resolver.get_sdk(SdkType.service_sdk)
 
     try:
-        topicspace = service_sdk.topicspace.put_topicspace(
+        topicspace = service_sdk.topic_space.put_topic_space(
             id=topic_name,
             topicspace={
                 "name": topic_name,
@@ -3245,7 +3246,7 @@ def iot_hub_topic_space_show(
     service_sdk = resolver.get_sdk(SdkType.service_sdk)
 
     try:
-        topicspace = service_sdk.topicspace.get_topicspace(
+        topicspace = service_sdk.topic_space.get_topic_space(
             id=topic_name, raw=True
         ).response.json()
         return topicspace
@@ -3271,7 +3272,7 @@ def iot_hub_topic_space_list(
     service_sdk = resolver.get_sdk(SdkType.service_sdk)
 
     try:
-        topicspaces = service_sdk.topicspace.list_topicspace(
+        topicspaces = service_sdk.topic_space.list_topic_space(
             raw=True
         ).response.json()
         return topicspaces
@@ -3298,7 +3299,7 @@ def iot_hub_topic_space_delete(
     service_sdk = resolver.get_sdk(SdkType.service_sdk)
 
     try:
-        topicspace = service_sdk.topicspace.delete_topicspace(
+        topicspace = service_sdk.topic_space.delete_topic_space(
             id=topic_name, raw=True
         ).response.json()
         return topicspace
