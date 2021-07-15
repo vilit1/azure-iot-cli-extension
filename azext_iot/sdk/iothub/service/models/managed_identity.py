@@ -9,5 +9,20 @@
 # regenerated.
 # --------------------------------------------------------------------------
 
-VERSION = "2021-06-30-preview"
+from msrest.serialization import Model
 
+
+class ManagedIdentity(Model):
+    """ManagedIdentity.
+
+    :param user_assigned_identity:
+    :type user_assigned_identity: str
+    """
+
+    _attribute_map = {
+        'user_assigned_identity': {'key': 'userAssignedIdentity', 'type': 'str'},
+    }
+
+    def __init__(self, **kwargs):
+        super(ManagedIdentity, self).__init__(**kwargs)
+        self.user_assigned_identity = kwargs.get('user_assigned_identity', None)

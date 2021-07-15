@@ -29,6 +29,7 @@ from azext_iot.common.shared import (
     IoTHubStateType,
     DeviceAuthApiType,
     ConnectionStringParser,
+    TopicSpaceType,
 )
 from azext_iot.iothub.providers.discovery import IotHubDiscovery
 from azext_iot.common.utility import (
@@ -43,7 +44,7 @@ from azext_iot.common.utility import (
 )
 from azext_iot._factory import SdkResolver, CloudError
 from azext_iot.operations.generic import _execute_query, _process_top
-
+import re
 
 logger = get_logger(__name__)
 
@@ -3301,3 +3302,138 @@ def _customize_device_tracing_output(device_id, desired, reported):
         ):
             output["isSynced"] = True
     return output
+
+# Topic Space Preview
+
+
+# def _validate_topic_template(topic_template):
+#     if (
+#         topic_template == "#" or
+#         topic_template[0] == "$" or
+#         "$IoTHub" in topic_template
+#     ):
+#         raise CLIError(
+#             f"Provided topic template path, {topic_template}, is in an incorrect format"
+#         )
+
+
+def iot_hub_topic_space_create_or_update(
+    cmd,
+    topic_name,
+    topic_template,
+    topic_type,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    topic_type = TopicSpaceType(topic_type)
+    if topic_type == TopicSpaceType.HighFanout:
+        raise CLIError("Only LowFanout and PublishOnly topic types are supported right now")
+
+    topic_template = list(re.split("\s|,", topic_template.strip("[]")))
+
+    # for topic in topic_template:
+    #     _validate_topic_template(topic)
+
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        return service_sdk.topic_space.put_topic_space(
+            id=topic_name,
+            topicspace={
+                "name": topic_name,
+                "properties": {
+                    "topicspace_type": topic_type,
+                    "topic_templates": topic_template
+                }
+            },
+            raw=True
+        ).response.json()
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_show(
+    cmd,
+    topic_name,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        return service_sdk.topic_space.get_topic_space(
+            id=topic_name, raw=True
+        ).response.json()
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_list(
+    cmd,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        return service_sdk.topic_space.list_topic_spaces(
+            raw=True
+        ).response.json()
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))
+
+
+def iot_hub_topic_space_delete(
+    cmd,
+    topic_name,
+    hub_name=None,
+    resource_group_name=None,
+    login=None,
+    auth_type_dataplane=None,
+):
+    discovery = IotHubDiscovery(cmd)
+    target = discovery.get_target(
+        hub_name=hub_name,
+        resource_group_name=resource_group_name,
+        login=login,
+        auth_type=auth_type_dataplane,
+    )
+    resolver = SdkResolver(target=target)
+    service_sdk = resolver.get_sdk(SdkType.service_sdk)
+
+    try:
+        return service_sdk.topic_space.delete_topic_space(
+            id=topic_name
+        )
+    except CloudError as e:
+        raise CLIError(unpack_msrest_error(e))

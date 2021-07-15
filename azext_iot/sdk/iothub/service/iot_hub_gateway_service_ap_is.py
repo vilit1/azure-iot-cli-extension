@@ -22,6 +22,7 @@ from .operations.jobs_operations import JobsOperations
 from .operations.cloud_to_device_messages_operations import CloudToDeviceMessagesOperations
 from .operations.modules_operations import ModulesOperations
 from .operations.digital_twin_operations import DigitalTwinOperations
+from .operations.topic_space_operations import TopicSpaceOperations
 from . import models
 
 
@@ -47,6 +48,7 @@ class IotHubGatewayServiceAPIsConfiguration(AzureConfiguration):
         super(IotHubGatewayServiceAPIsConfiguration, self).__init__(base_url)
 
         self.add_user_agent('iothubgatewayserviceapis/{}'.format(VERSION))
+        self.add_user_agent('Azure-SDK-For-Python')
 
         self.credentials = credentials
 
@@ -59,24 +61,24 @@ class IotHubGatewayServiceAPIs(SDKClient):
 
     :ivar configuration: Configuration operations
     :vartype configuration: service.operations.ConfigurationOperations
-    :vartype configuration: azure.operations.ConfigurationOperations
     :ivar statistics: Statistics operations
-    :vartype statistics: azure.operations.StatisticsOperations
+    :vartype statistics: service.operations.StatisticsOperations
     :ivar devices: Devices operations
-    :vartype devices: azure.operations.DevicesOperations
+    :vartype devices: service.operations.DevicesOperations
     :ivar bulk_registry: BulkRegistry operations
-    :vartype bulk_registry: azure.operations.BulkRegistryOperations
+    :vartype bulk_registry: service.operations.BulkRegistryOperations
     :ivar query: Query operations
-    :vartype query: azure.operations.QueryOperations
+    :vartype query: service.operations.QueryOperations
     :ivar jobs: Jobs operations
-    :vartype jobs: azure.operations.JobsOperations
+    :vartype jobs: service.operations.JobsOperations
     :ivar cloud_to_device_messages: CloudToDeviceMessages operations
-    :vartype cloud_to_device_messages: azure.operations.CloudToDeviceMessagesOperations
+    :vartype cloud_to_device_messages: service.operations.CloudToDeviceMessagesOperations
     :ivar modules: Modules operations
-    :vartype modules: azure.operations.ModulesOperations
+    :vartype modules: service.operations.ModulesOperations
     :ivar digital_twin: DigitalTwin operations
-    :vartype digital_twin: azure.operations.DigitalTwinOperations
     :vartype digital_twin: service.operations.DigitalTwinOperations
+    :ivar topic_space: TopicSpace operations
+    :vartype topic_space: service.operations.TopicSpaceOperations
 
     :param credentials: Credentials needed for the client to connect to Azure.
     :type credentials: :mod:`A msrestazure Credentials
@@ -91,7 +93,7 @@ class IotHubGatewayServiceAPIs(SDKClient):
         super(IotHubGatewayServiceAPIs, self).__init__(self.config.credentials, self.config)
 
         client_models = {k: v for k, v in models.__dict__.items() if isinstance(v, type)}
-        self.api_version = '2020-09-30'
+        self.api_version = '2021-06-30-preview'
         self._serialize = Serializer(client_models)
         self._deserialize = Deserializer(client_models)
 
@@ -112,4 +114,6 @@ class IotHubGatewayServiceAPIs(SDKClient):
         self.modules = ModulesOperations(
             self._client, self.config, self._serialize, self._deserialize)
         self.digital_twin = DigitalTwinOperations(
+            self._client, self.config, self._serialize, self._deserialize)
+        self.topic_space = TopicSpaceOperations(
             self._client, self.config, self._serialize, self._deserialize)

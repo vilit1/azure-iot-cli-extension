@@ -30,6 +30,7 @@ try:
     from .query_specification_py3 import QuerySpecification
     from .twin_properties_py3 import TwinProperties
     from .twin_py3 import Twin
+    from .managed_identity_py3 import ManagedIdentity
     from .job_properties_py3 import JobProperties
     from .purge_message_queue_result_py3 import PurgeMessageQueueResult
     from .cloud_to_device_method_py3 import CloudToDeviceMethod
@@ -38,6 +39,8 @@ try:
     from .job_response_py3 import JobResponse
     from .query_result_py3 import QueryResult
     from .module_py3 import Module
+    from .topic_space_properties_py3 import TopicSpaceProperties
+    from .topic_space_py3 import TopicSpace
     from .cloud_to_device_method_result_py3 import CloudToDeviceMethodResult
 except (SyntaxError, ImportError):
     from .configuration_metrics import ConfigurationMetrics
@@ -60,6 +63,7 @@ except (SyntaxError, ImportError):
     from .query_specification import QuerySpecification
     from .twin_properties import TwinProperties
     from .twin import Twin
+    from .managed_identity import ManagedIdentity
     from .job_properties import JobProperties
     from .purge_message_queue_result import PurgeMessageQueueResult
     from .cloud_to_device_method import CloudToDeviceMethod
@@ -68,6 +72,8 @@ except (SyntaxError, ImportError):
     from .job_response import JobResponse
     from .query_result import QueryResult
     from .module import Module
+    from .topic_space_properties import TopicSpaceProperties
+    from .topic_space import TopicSpace
     from .cloud_to_device_method_result import CloudToDeviceMethodResult
 
 __all__ = [
@@ -91,6 +97,7 @@ __all__ = [
     'QuerySpecification',
     'TwinProperties',
     'Twin',
+    'ManagedIdentity',
     'JobProperties',
     'PurgeMessageQueueResult',
     'CloudToDeviceMethod',
@@ -99,5 +106,7 @@ __all__ = [
     'JobResponse',
     'QueryResult',
     'Module',
+    'TopicSpaceProperties',
+    'TopicSpace',
     'CloudToDeviceMethodResult',
 ]

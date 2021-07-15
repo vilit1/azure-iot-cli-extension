@@ -18,6 +18,7 @@ from .jobs_operations import JobsOperations
 from .cloud_to_device_messages_operations import CloudToDeviceMessagesOperations
 from .modules_operations import ModulesOperations
 from .digital_twin_operations import DigitalTwinOperations
+from .topic_space_operations import TopicSpaceOperations
 
 __all__ = [
     'ConfigurationOperations',
@@ -29,4 +30,5 @@ __all__ = [
     'CloudToDeviceMessagesOperations',
     'ModulesOperations',
     'DigitalTwinOperations',
+    'TopicSpaceOperations',
 ]
