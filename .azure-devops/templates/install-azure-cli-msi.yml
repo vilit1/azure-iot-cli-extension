@@ -6,6 +6,7 @@ steps:
       script: |
         (Get-Command az).source
         az -v
+        pip freeze
     displayName: 'Show AZ CLI version info'
   - task: PowerShell@2
     displayName: 'Set Windows MSI Python Executable PATH'
