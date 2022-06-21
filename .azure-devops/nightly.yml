@@ -5,12 +5,6 @@ trigger: none
 pr: none
 
 # Run nightly at midnight (Pacific).
-schedules:
-- cron: "0 8 * * *"
-  displayName: 'Nightly Integration Build'
-  branches:
-    include:
-    - dev
 
 parameters:
 - name: variableGroup
