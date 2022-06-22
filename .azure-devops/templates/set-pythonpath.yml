@@ -5,6 +5,8 @@ steps:
     inputs:
       scriptSource: 'inline'
       script: |
+        import os, sys
+        print(os.path.dirname(sys.executable))
         from azure.cli.core.extension import get_extension_path
         extension_path = get_extension_path("azure-iot")
         print("Extension path is " + extension_path)
