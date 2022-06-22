@@ -1,7 +1,7 @@
 steps:
   - task: PowerShell@2
     displayName: 'Upgrade pip, install dev_requirements and cryptography'
-    name: 'Install Dev tools'
+    name: 'Install_Dev_tools'
     inputs:
       targetType: 'inline'
       script: |
