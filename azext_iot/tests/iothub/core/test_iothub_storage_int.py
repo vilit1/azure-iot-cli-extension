@@ -224,6 +224,9 @@ class TestIoTStorage(IoTLiveScenarioTest):
 
         self.assign_storage_role_if_needed(hub_id)
 
+        # give time to finish job
+        sleep(30)
+
         self.cmd(
             'iot hub device-identity export -n {} --bcu "{}" --auth-type {} --identity {} --ik true'.format(
                 self.entity_name, self.live_storage_uri, "identity", "[system]"
