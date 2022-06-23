@@ -238,6 +238,9 @@ class TestIoTStorage(IoTLiveScenarioTest):
             ],
         )
 
+        # give time to finish job
+        sleep(30)
+
         self.cmd(
             'iot hub device-identity import -n {} --ibcu "{}" --obcu "{}" --auth-type {} --identity {}'.format(
                 self.entity_name, self.live_storage_uri, self.live_storage_uri, "identity", "[system]"
@@ -251,6 +254,9 @@ class TestIoTStorage(IoTLiveScenarioTest):
                 self.exists("jobId"),
             ],
         )
+
+        # give time to finish job
+        sleep(30)
 
         self.cmd(
             'iot hub device-identity export -n {} --bcu "{}" --auth-type {} --identity {}'.format(
