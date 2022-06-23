@@ -6,7 +6,6 @@ steps:
       script: |
         (Get-Command az).source
         az -v
-        $env:PYTHONPATH -split ";"
     displayName: 'Show AZ CLI version info'
   - task: PowerShell@2
     displayName: 'Set Windows MSI Python Executable PATH'
@@ -15,3 +14,6 @@ steps:
       script: |
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2"
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\Scripts"
+        echo "##vso[task.setvariable variable=PYTHONPATH;]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe"
+        $env:PYTHONPATH -split ";"
+        pip freeze
