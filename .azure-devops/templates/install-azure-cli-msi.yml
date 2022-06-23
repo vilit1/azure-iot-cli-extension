@@ -18,6 +18,5 @@ steps:
       script: |
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2"
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\Scripts"
-        echo "##vso[task.setvariable variable=PYTHONPATH;]$(PYTHONPATH):C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe"
-        $env:PYTHONPATH -split ";"
+        $env:PATH -split ";"
         pip freeze
