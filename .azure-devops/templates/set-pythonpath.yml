@@ -8,5 +8,5 @@ steps:
         from azure.cli.core.extension import get_extension_path
         extension_path = get_extension_path("azure-iot")
         print("Extension path is " + extension_path)
-        print("##vso[task.setvariable variable=PATH;]"+extension_path)
-        print("hello")
+        print("##vso[task.setvariable variable=PYTHONPATH;]"+extension_path)
+
