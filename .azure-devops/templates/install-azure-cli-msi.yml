@@ -6,6 +6,10 @@ steps:
       script: |
         (Get-Command az).source
         az -v
+        python -c "import sys; print(sys.executable)"
+        python -m pip install --upgrade pip
+        python -m pip install -r dev_requirements
+        python -m pip install cryptography
     displayName: 'Show AZ CLI version info'
   - task: PowerShell@2
     displayName: 'Set Windows MSI Python Executable PATH'
@@ -14,6 +18,6 @@ steps:
       script: |
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2"
         echo "##vso[task.prependPath]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\Scripts"
-        echo "##vso[task.setvariable variable=PYTHONPATH;]C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe"
+        echo "##vso[task.setvariable variable=PYTHONPATH;]$(PYTHONPATH):C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe"
         $env:PYTHONPATH -split ";"
         pip freeze
