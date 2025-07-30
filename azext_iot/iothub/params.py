@@ -335,6 +335,20 @@ def load_iothub_arguments(self, _):
             arg_group="IoT Hub Identifier",
         )
 
+    with self.argument_context("iot hub tls-compat set") as context:
+        context.argument(
+            "tls_compatibility_mode",
+            options_list=["--tls-compatibility-mode", "--tcm"],
+            arg_type=get_three_state_flag(),
+            help="Set the TLS compatibility mode for the IoT Hub. "
+        )
+        context.argument(
+            "confirm_yes",
+            options_list=["--yes", "-y"],
+            arg_type=get_three_state_flag(),
+            help="Confirm [y]es without a prompt.",
+        )
+
     with self.argument_context("iot edge devices") as context:
         context.argument(
             "devices",
