@@ -955,3 +955,38 @@ def load_iothub_help():
             text: >
               az iot hub message-route fallback set -n {iothub_name} --enabled false
     """
+
+    helps[
+        "iot hub tls-compat"
+    ] = """
+        type: group
+        short-summary: Manage TLS compatibility settings of an IoT hub.
+    """
+
+    helps[
+        "iot hub tls-compat show"
+    ] = """
+        type: command
+        short-summary: Show the TLS compatibility settings of an IoT Hub.
+        examples:
+          - name: Show the TLS compatibility settings of an IoT Hub.
+            text: >
+              az iot hub tls-compat show -n {iothub_name}
+    """
+
+    helps[
+        "iot hub tls-compat set"
+    ] = """
+
+        type: command
+        short-summary: Set the TLS compatibility settings of an IoT Hub.
+
+        examples:
+          - name: Enable the TLS compatibility mode for an IoT Hub.
+            text: >
+              az iot hub tls-compat set -n {iothub_name} --tcm True
+          - name: Disable the TLS compatibility mode for an IoT Hub.
+            text: >
+              az iot hub tls-compat set -n {iothub_name} --tcm False
+
+    """
