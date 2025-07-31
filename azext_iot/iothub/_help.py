@@ -984,9 +984,8 @@ def load_iothub_help():
         examples:
           - name: Enable the TLS compatibility mode for an IoT Hub.
             text: >
-              az iot hub tls-compat set -n {iothub_name} --tcm True
-          - name: Disable the TLS compatibility mode for an IoT Hub.
+              az iot hub tls-compat set -n {iothub_name} --enable
+          - name: Disable the TLS compatibility mode for an IoT Hub without prompting.
             text: >
-              az iot hub tls-compat set -n {iothub_name} --tcm False
-
+              az iot hub tls-compat set -n {iothub_name} --enable false -y
     """

@@ -338,9 +338,9 @@ def load_iothub_arguments(self, _):
     with self.argument_context("iot hub tls-compat set") as context:
         context.argument(
             "tls_compatibility_mode",
-            options_list=["--tls-compatibility-mode", "--tcm"],
+            options_list=["--enable"],
             arg_type=get_three_state_flag(),
-            help="Set the TLS compatibility mode for the IoT Hub. "
+            help="Enable the TLS compatibility mode for the IoT Hub. "
         )
         context.argument(
             "confirm_yes",

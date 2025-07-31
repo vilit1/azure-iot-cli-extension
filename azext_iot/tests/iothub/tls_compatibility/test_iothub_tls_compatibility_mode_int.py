@@ -21,7 +21,7 @@ def test_tls_compatibility_mode(provisioned_only_iot_hubs_module):
 
     # transition 1
     updated_state = cli.invoke(
-        f"iot hub tls-compat set -n {hub_name} -g {rg} --tls-compatibility-mode {not initial_state} --yes"
+        f"iot hub tls-compat set -n {hub_name} -g {rg} --enable {not initial_state} --yes"
     ).as_json()["tlsCompatibilityMode"]
     assert updated_state is not initial_state
 
@@ -33,7 +33,7 @@ def test_tls_compatibility_mode(provisioned_only_iot_hubs_module):
 
     # transition 2
     updated_state = cli.invoke(
-        f"iot hub tls-compat set -n {hub_name} -g {rg} --tls-compatibility-mode {initial_state} --yes"
+        f"iot hub tls-compat set -n {hub_name} -g {rg} --enable {initial_state} --yes"
     ).as_json()["tlsCompatibilityMode"]
     assert updated_state is initial_state
 
