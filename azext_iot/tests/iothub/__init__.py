@@ -63,6 +63,7 @@ class IoTLiveScenarioTest(CaptureOutputLiveScenarioTest):
         self.entity_name = ENTITY_NAME
         super(IoTLiveScenarioTest, self).__init__(test_scenario)
 
+    def _setup(self, add_data_contributor, test_scenario):
         if hasattr(self, 'storage_cstring'):
             self._create_storage_account()
 

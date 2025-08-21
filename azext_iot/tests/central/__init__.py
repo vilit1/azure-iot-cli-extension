@@ -12,7 +12,7 @@ from typing import Tuple
 from azure.cli.core.azclierror import CLIInternalError
 from azext_iot.tests import CaptureOutputLiveScenarioTest
 from azext_iot.tests.conftest import get_context_path
-from azext_iot.tests.generators import generate_generic_id
+from azext_iot.tests.generators import generate_generic_id, generate_names
 from azext_iot.tests.helpers import add_test_tag, create_storage_account, CERT_ENDING
 from azext_iot.tests.settings import DynamoSettings
 from azext_iot.tests.test_utils import create_certificate
@@ -35,7 +35,14 @@ CENTRAL_SETTINGS = [
     "azext_iot_central_storage_container",
 ]
 settings = DynamoSettings(opt_env_set=CENTRAL_SETTINGS)
+
+# general central
 APP_RG = settings.env.azext_iot_testrg
+APP_ID = settings.env.azext_iot_central_app_id or generate_names(prefix="test-app-", max_length=20)
+SCOPE_ID = settings.env.azext_iot_central_scope_id
+APP_PRIMARY_KEY = settings.env.azext_iot_central_primarykey
+DNS_SUFFIX = settings.env.azext_iot_central_dns_suffix
+TOKEN = settings.env.azext_iot_central_token
 
 # Storage Account
 DEFAULT_CONTAINER = "central"
@@ -43,18 +50,18 @@ STORAGE_CONTAINER = (
     settings.env.azext_iot_central_storage_container or DEFAULT_CONTAINER
 )
 STORAGE_ACCOUNT = (
-    settings.env.azext_iot_teststorageaccount or "iotstore" + generate_generic_id()[:4]
+    settings.env.azext_iot_teststorageaccount or generate_names(prefix="iotstore", max_length=12)
 )
 DEFAULT_FILE_UPLOAD_TTL = "PT1H"
 
 # Device templates
-device_template_path = get_context_path(__file__, "json/device_template_int_test.json")
-edge_template_path_preview = get_context_path(
+DEVICE_TEMPLATE_PATH = get_context_path(__file__, "json/device_template_int_test.json")
+EDGE_TEMPLATE_PATH_PREVIEW = get_context_path(
     __file__, "json/device_template_edge.json"
 )
-sync_command_params = get_context_path(__file__, "json/sync_command_args.json")
-device_updated_properties_path = get_context_path(__file__, "json/device_update_properties.json")
-device_updated_component_properties_path = get_context_path(__file__, "json/device_update_component_properties.json")
+SYNC_COMMAND_PARAMS = get_context_path(__file__, "json/sync_command_args.json")
+DEVICE_UPDATED_PROPERTIES_PATH = get_context_path(__file__, "json/device_update_properties.json")
+DEVICE_UPDATED_COMPONENT_PROPERTIES_PATH = get_context_path(__file__, "json/device_update_component_properties.json")
 
 # Device attestation
 attestation_payload = {
@@ -148,6 +155,7 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
 
         # Create Central App if it does not exist. Note that app_primary_key will be nullified since
         # there is no current way to get the app_primary_key and not all tests can be executed.
+        target_app = None
         if not settings.env.azext_iot_central_app_id:
             if not APP_RG:
                 raise CLIInternalError("Tests need either app name or resource group.")
@@ -165,7 +173,6 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
             ).get_output_in_json()
 
             # Check if the generated name is already used
-            target_app = None
             for app in app_list:
                 if app["name"] == self.app_id:
                     target_app = app
@@ -173,12 +180,12 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
 
             # Create the min version app and assign the correct roles
             if not target_app:
-                self.cmd(
+                target_app = self.cmd(
                     "iot central app create -n {} -g {} -s {} -l {}".format(
                         self.app_id, APP_RG, self.app_id, "westus"
                     ),
                     include_opt_args=False,
-                )
+                ).get_output_in_json()
 
             self.app_primary_key = None
             # Will be repopulated with get_app_scope_id for tests that need it
@@ -195,8 +202,9 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
                     " specified, it will not be created and the respective tests will not run."
                 )
             self.app_rg = APP_RG
+        elif target_app:
+            self.app_rg = target_app['resourceGroup']
         else:
-            target_app = None
             app_list = self.cmd('iot central app list').get_output_in_json()
             for app in app_list:
                 if app["applicationId"] == self.app_id or app["name"] == self.app_id:

@@ -25,10 +25,10 @@ logger = get_logger(__name__)
 
 
 class TestIotCentral(CentralLiveScenarioTest):
-    @pytest.fixture(autouse=True)
+    @pytest.fixture(scope="session")
     def fixture_api_version(self):
+        import pdb; pdb.set_trace()
         # No need to pass api version here
-        self._api_version = None
         yield
 
     @pytest.fixture(scope="class", autouse=True)
@@ -39,6 +39,11 @@ class TestIotCentral(CentralLiveScenarioTest):
 
     def __init__(self, test_scenario):
         super(TestIotCentral, self).__init__(test_scenario=test_scenario)
+        if test_scenario == "runTest":
+            return
+        self._api_version = None
+        self.storage_account_name = None
+        self._create_app()
         self._create_storage_account()
 
     def test_central_monitor_events(self):
