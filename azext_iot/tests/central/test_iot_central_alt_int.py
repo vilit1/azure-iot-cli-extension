@@ -14,12 +14,33 @@ from azext_iot.common import utility
 from azext_iot.tests import helpers
 import azext_iot.tests.central.helpers as central_helpers
 
+from azext_iot.common.embedded_cli import EmbeddedCLI
+cli = EmbeddedCLI()
 
 logger = get_logger(__name__)
 
 
-def test_alt_central_validate_messages_success():
-    app_id = None
+@pytest.fixture()
+def tracked_resources():
+    resources = []
+    yield resources
+    for res in resources:
+        try:
+            cli.invoke(f"resource delete --id {res} -v", capture_stderr=True)
+        except Exception:
+            logger.error(f"Failed to delete {res}")
+
+
+@pytest.fixture()
+def tracked_app(tracked_resources):
+    app_id, app_rg = central_helpers.create_app(tracked_resources)
+    yield app_id, app_rg
+
+
+def test_alt_central_validate_messages_success(tracked_app):
+    app_id, _ = tracked_app
+
+    # TODO: these should prob be fixtures
     (template_id, _) = central_helpers.create_device_template(app_id)
     (device_id, _) = central_helpers.create_device(
         app_id=app_id,
@@ -30,6 +51,7 @@ def test_alt_central_validate_messages_success():
         device_id=device_id
     )
 
+    import pdb; pdb.set_trace()
     device_client = helpers.dps_connect_device(device_id, credentials)
 
     enqueued_time = utility.calculate_millisec_since_unix_epoch_utc() - 10000
@@ -43,13 +65,10 @@ def test_alt_central_validate_messages_success():
     device_client.send_message(msg)
 
     # Validate the messages
-    output = central_helpers.get_validate_messages_output(device_id, enqueued_time)
+    output = central_helpers.get_validate_messages_output(app_id, device_id, enqueued_time)
 
-    central_helpers.delete_device(device_id=device_id)
-
-    central_helpers.delete_device_template(
-        template_id=template_id
-    )
+    central_helpers.delete_device(app_id=app_id, device_id=device_id)
+    central_helpers.delete_device_template(app_id=app_id, template_id=template_id)
 
     assert output
     assert "Successfully parsed 1 message(s)" in output

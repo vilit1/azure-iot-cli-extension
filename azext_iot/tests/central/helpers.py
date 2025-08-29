@@ -18,7 +18,8 @@ from azext_iot.tests.central import (
     EDGE_TEMPLATE_PATH_PREVIEW,
     APP_RG,
     TOKEN,
-    DNS_SUFFIX
+    DNS_SUFFIX,
+    settings
 )
 
 
@@ -40,6 +41,67 @@ def cmd(command, api_version=None, include_opt_args=True, expect_failure=False) 
     if expect_failure:
         assert not result.success(), f"Command `{command}` did not fail as expected."
     return result
+
+
+def create_app(tracked_resources) -> Tuple[str, str]:
+    """
+    Create an Iot Central Application if a name is not given in the pytest configuration.
+    """
+    app_id = (
+        settings.env.azext_iot_central_app_id or generate_names(prefix="test-app-", max_length=20)
+    )
+
+    # Create Central App if it does not exist. Note that app_primary_key will be nullified since
+    # there is no current way to get the app_primary_key and not all tests can be executed.
+    target_app = None
+    if not settings.env.azext_iot_central_app_id:
+        if not APP_RG:
+            raise CLIInternalError("Tests need either app name or resource group.")
+        if DNS_SUFFIX or TOKEN:
+            raise CLIInternalError(
+                "Create an IoT Central App with a valid API token and populate the azext_iot_central_app_id, "
+                "azext_iot_central_dns_suffix, and azext_iot_central_token variables for testing in non-prod environments."
+            )
+
+        app_list = cmd(
+            'iot central app list -g "{}"'.format(APP_RG)
+        ).as_json()
+
+        # Check if the generated name is already used
+        for app in app_list:
+            if app["name"] == app_id:
+                target_app = app
+                break
+
+        # Create the min version app and assign the correct roles
+        if not target_app:
+            target_app = cmd(
+                "iot central app create -n {} -g {} -s {} -l {}".format(
+                    app_id, APP_RG, app_id, "westus"
+                ),
+                include_opt_args=False,
+            ).as_json()
+            tracked_resources.append(target_app["id"])
+
+    # Get Central App RG if possible
+    if DNS_SUFFIX or TOKEN:
+        if not APP_RG:
+            logger.info(
+                "Tests will not have the resource group populated. If a storage account is not"
+                " specified, it will not be created and the respective tests will not run."
+            )
+        return app_id, APP_RG
+    elif target_app:
+        return app_id, target_app['resourceGroup']
+    else:
+        app_list = cmd('iot central app list').as_json()
+        for app in app_list:
+            if app["applicationId"] == app_id or app["name"] == app_id:
+                return app_id, app['resourceGroup']
+        # Throw if no resource group found
+        raise CLIInternalError(
+            f"Please provide API token (azext_iot_central_token) in the setting for application {app_id}"
+        )
 
 
 def create_device_template(app_id: str, api_version: Optional[str] = None, edge: bool = False) -> Tuple[str, str]:
@@ -130,12 +192,23 @@ def get_validate_messages_output(
     app_id: str, device_id: str, enqueued_time: str, duration: int = 60, max_messages: int = 1, asserts=None
 ):
     # TODO: prob better way of handling this?
-    from azext_iot.tests import CaptureOutputLiveScenarioTest
-    live = CaptureOutputLiveScenarioTest(test_scenario=None)
+    from azext_iot.tests import command_execute_assert
     if not asserts:
         asserts = []
 
-    output = live.command_execute_assert(
+    print(
+        "iot central diagnostics validate-messages"
+        " --app-id {} "
+        " -d {} "
+        " --et {} "
+        " --duration {} "
+        " --mm {} -y --style json".format(
+            app_id, device_id, enqueued_time, duration, max_messages
+        )
+    )
+    import pdb; pdb.set_trace()
+    output = command_execute_assert(
+        cli,
         "iot central diagnostics validate-messages"
         " --app-id {} "
         " -d {} "
@@ -146,11 +219,21 @@ def get_validate_messages_output(
         ),
         asserts,
     )
+    print(output)
 
     if not output:
         output = ""
 
     return output
+
+
+def delete_device(app_id: str, device_id: str, api_version: Optional[str] = None) -> None:
+    command = "iot central device delete --app-id {} -d {} ".format(
+        app_id, device_id
+    )
+
+    result = cmd(command=command, api_version=api_version).as_json()
+    assert result["result"] == "success"
 
 
 def delete_device_template(app_id: str, template_id: str, api_version: Optional[str] = None):

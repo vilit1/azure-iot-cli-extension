@@ -42,6 +42,21 @@ def capture_output():
         buffer_tee.close()
 
 
+def command_execute_assert(command, asserts=[]):
+    from . import capture_output
+    from azext_iot.common.embedded_cli import EmbeddedCLI
+    cli = EmbeddedCLI()
+
+    with capture_output() as buffer:
+        cli.invoke(command)
+        output = buffer.get_output()
+
+    for a in asserts:
+        assert a in output
+
+    return output
+
+
 class CaptureOutputLiveScenarioTest(LiveScenarioTest):
     def __init__(self, test_scenario):
         super(CaptureOutputLiveScenarioTest, self).__init__(test_scenario)

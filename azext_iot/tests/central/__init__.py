@@ -388,7 +388,7 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
             iot central device twin update
             --app-id {self.app_id}
             --device-id {device_id}
-            --content '{device_updated_properties_path}' '''
+            --content '{DEVICE_UPDATED_PROPERTIES_PATH}' '''
         return self.cmd(
             command,
             api_version=api_version,
@@ -400,7 +400,7 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
             --app-id {self.app_id}
             --device-id {device_id}
             --component-name {component_name}
-            --content '{device_updated_component_properties_path}' '''
+            --content '{DEVICE_UPDATED_COMPONENT_PROPERTIES_PATH}' '''
         return self.cmd(
             command,
             api_version=api_version,
@@ -412,7 +412,7 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
             --app-id {self.app_id}
             --device-id {device_id}
             --module-name {module_name}
-            --content '{device_updated_properties_path}' '''
+            --content '{DEVICE_UPDATED_PROPERTIES_PATH}' '''
         return self.cmd(
             command,
             api_version=api_version,
@@ -425,7 +425,7 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
             --device-id {device_id}
             --component-name {component_name}
             --module-name {module_name}
-            --content '{device_updated_component_properties_path}' '''
+            --content '{DEVICE_UPDATED_COMPONENT_PROPERTIES_PATH}' '''
         return self.cmd(
             command,
             api_version=api_version,
@@ -492,9 +492,9 @@ class CentralLiveScenarioTest(CaptureOutputLiveScenarioTest):
 
     def _create_device_template(self, api_version, edge=False):
         if edge:
-            template_path = edge_template_path_preview
+            template_path = EDGE_TEMPLATE_PATH_PREVIEW
         else:
-            template_path = device_template_path
+            template_path = DEVICE_TEMPLATE_PATH
 
         template = utility.process_json_arg(
             template_path,
